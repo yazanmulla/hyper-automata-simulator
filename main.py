@@ -4,40 +4,28 @@ Parses input and creates hyperautomata instances.
 """
 
 import sys
-from typing import Set, Dict, Tuple
-from hyperautomata import HyperAutomaton, SynchronousHyperAutomaton, AsynchronousHyperAutomaton
+from hyperautomata import NFH
 
 
 def parse_automaton_input() -> Dict:
     """
-    Parse hyperautomaton definition from input.
+    Parse NFH definition from input.
     
     Expected format:
-    - First line: "sync" or "async" (or "synchronous"/"asynchronous")
-    - Second line: number of states
-    - Third line: space-separated state names
-    - Fourth line: number of symbols in alphabet
-    - Fifth line: space-separated alphabet symbols
-    - Sixth line: initial state
-    - Seventh line: number of accepting states
-    - Eighth line: space-separated accepting states
-    - Following lines: transitions in format "state symbol next_state1 next_state2 ..."
+    - First line: number of states
+    - Second line: space-separated state names
+    - Third line: number of symbols in alphabet
+    - Fourth line: space-separated alphabet symbols
+    - Fifth line: initial state
+    - Sixth line: number of accepting states
+    - Seventh line: space-separated accepting states
+    - Following lines: transitions in format "state symbol1 symbol2 ... symbolN next_state"
     - Empty line or EOF to end transitions
     
     Returns:
         Dictionary containing parsed automaton definition
     """
-    print("Enter hyperautomaton definition:")
-    print("Type 'sync' or 'async':")
-    mode_input = input().strip().lower()
-    
-    # Normalize input: accept both short and long forms
-    if mode_input in ['sync', 'synchronous']:
-        mode = 'synchronous'
-    elif mode_input in ['async', 'asynchronous']:
-        mode = 'asynchronous'
-    else:
-        raise ValueError(f"Invalid mode: {mode_input}. Must be 'sync' or 'async'")
+    print("Enter NFH definition:")
     
     print("Enter number of states:")
     num_states = int(input().strip())
@@ -69,13 +57,10 @@ def parse_automaton_input() -> Dict:
     if len(accepting_states) != num_accepting:
         raise ValueError(f"Number of accepting states doesn't match: expected {num_accepting}, got {len(accepting_states)}")
     
-    if mode == 'synchronous':
-        print("Enter transitions (format: 'state symbol1 symbol2 ... symbolN next_state'):")
-        print("  For sync: use vector of symbols (one per trace), e.g., 'q0 a b a q1'")
-        print("  (Enter empty line to finish)")
-    else:
-        print("Enter transitions (format: 'state symbol next_state1 next_state2 ...'):")
-        print("(Enter empty line to finish)")
+    print("Enter transitions (format: 'state symbol1 symbol2 ... symbolN next_state'):")
+    print("  Use vector of symbols (one per trace), e.g., 'q0 a b a q1'")
+    print("  (Enter empty line to finish)")
+
     transitions = {}
     
     while True:
@@ -85,42 +70,22 @@ def parse_automaton_input() -> Dict:
         
         parts = line.split()
         if len(parts) < 3:
-            print(f"Invalid transition format: {line}. Skipping.")
+            print(f"Invalid transition format: {line}. Need at least state, symbols, and next_state. Skipping.")
             continue
         
         state = parts[0]
+        # All parts except first and last are symbols
+        symbol_vector = tuple(parts[1:-1])
+        next_state = parts[-1]
+        next_states = {next_state}
         
-        if mode == 'synchronous':
-            # For sync: state symbol1 symbol2 ... symbolN next_state
-            # The number of symbols should match the number of traces (we'll validate later)
-            # Last part is the next state
-            if len(parts) < 3:
-                print(f"Invalid transition format: {line}. Need at least state, symbols, and next_state. Skipping.")
-                continue
-            
-            # All parts except first and last are symbols
-            symbol_vector = tuple(parts[1:-1])
-            next_state = parts[-1]
-            next_states = {next_state}
-            
-            key = (state, symbol_vector)
-            if key in transitions:
-                transitions[key].update(next_states)
-            else:
-                transitions[key] = next_states
+        key = (state, symbol_vector)
+        if key in transitions:
+            transitions[key].update(next_states)
         else:
-            # For async: state symbol next_state1 next_state2 ...
-            symbol = parts[1]
-            next_states = set(parts[2:])
-            
-            key = (state, symbol)
-            if key in transitions:
-                transitions[key].update(next_states)
-            else:
-                transitions[key] = next_states
+            transitions[key] = next_states
     
     return {
-        'mode': mode,
         'states': states,
         'alphabet': alphabet,
         'initial_state': initial_state,
@@ -129,32 +94,23 @@ def parse_automaton_input() -> Dict:
     }
 
 
-def create_automaton(definition: Dict) -> HyperAutomaton:
+def create_automaton(definition: Dict) -> NFH:
     """
-    Create a hyperautomaton instance from definition.
+    Create NFH instance from definition.
     
     Args:
         definition: Dictionary containing automaton definition
         
     Returns:
-        HyperAutomaton instance (Synchronous or Asynchronous)
+        NFH instance
     """
-    if definition['mode'] == 'synchronous':
-        return SynchronousHyperAutomaton(
-            states=definition['states'],
-            alphabet=definition['alphabet'],
-            initial_state=definition['initial_state'],
-            accepting_states=definition['accepting_states'],
-            transitions=definition['transitions']
-        )
-    else:
-        return AsynchronousHyperAutomaton(
-            states=definition['states'],
-            alphabet=definition['alphabet'],
-            initial_state=definition['initial_state'],
-            accepting_states=definition['accepting_states'],
-            transitions=definition['transitions']
-        )
+    return NFH(
+        states=definition['states'],
+        alphabet=definition['alphabet'],
+        initial_state=definition['initial_state'],
+        accepting_states=definition['accepting_states'],
+        transitions=definition['transitions']
+    )
 
 
 def parse_traces() -> list:
@@ -189,7 +145,7 @@ def main():
         
         # Create automaton
         automaton = create_automaton(definition)
-        print(f"\n✓ Created {definition['mode']} hyperautomaton")
+        print(f"\n✓ Created NFH (Synchronous) hyperautomaton")
         
         # Parse and run traces
         traces = parse_traces()
@@ -210,29 +166,21 @@ def main():
         
         # Print detailed history
         print("\nDetailed run history:")
-        if isinstance(automaton, SynchronousHyperAutomaton):
-            print("  (Synchronous: all traces are in the same state)")
-            for step_info in result['run_history']:
-                if 'step' in step_info and step_info['step'] < len(result['run_history']) - 1:
-                    print(f"  Step {step_info['step']}:")
-                    print(f"    Current state: {step_info['current_state']} (all traces)")
-                    print(f"    Symbol vector: {step_info['symbol_vector']} (one from each trace)")
-                    if 'chosen_state' in step_info:
-                        print(f"    Next state: {step_info['chosen_state']} (all traces transition together)")
-                    if len(step_info.get('next_states', [])) > 1:
-                        print(f"    (Other possible states: {step_info['next_states']})")
-            if result['run_history']:
-                final = result['run_history'][-1]
-                if 'final_state' in final:
-                    print(f"  Final state: {final['final_state']} (all traces)")
-                    print(f"  Accepted: {final['accepted']}")
-        else:  # Asynchronous
-            for trace_result in result['run_history']:
-                print(f"\n  Trace {trace_result['trace_idx']}: {trace_result['trace']}")
-                print(f"    Accepted: {trace_result['accepted']}")
-                print(f"    Final state: {trace_result['final_state']}")
-                for step in trace_result['steps']:
-                    print(f"      Step {step['step']}: {step['current_state']} --{step['symbol']}--> {step['new_state']}")
+        for step_info in result['run_history']:
+            if 'step' in step_info and step_info['step'] < len(result['run_history']) - 1:
+                print(f"  Step {step_info['step']}:")
+                print(f"    Current state: {step_info['current_state']} (all traces)")
+                print(f"    Symbol vector: {step_info['symbol_vector']} (one from each trace)")
+                if 'chosen_state' in step_info:
+                    print(f"    Next state: {step_info['chosen_state']} (all traces transition together)")
+                if len(step_info.get('next_states', [])) > 1:
+                    print(f"    (Other possible states: {step_info['next_states']})")
+        if result['run_history']:
+            final = result['run_history'][-1]
+            if 'final_state' in final:
+                print(f"  Final state: {final['final_state']} (all traces)")
+                print(f"  Accepted: {final['accepted']}")
+
         
         # Option to visualize
         print("\nWould you like to visualize the run? (y/n):")

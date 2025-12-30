@@ -6,17 +6,10 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 import networkx as nx
 from typing import List, Dict
-from hyperautomata import HyperAutomaton, SynchronousHyperAutomaton
+from hyperautomata import NFH
 
 
-def visualize_automaton(automaton: HyperAutomaton, title: str = "Hyperautomaton"):
-    """
-    Visualize the structure of the hyperautomaton.
-    
-    Args:
-        automaton: The hyperautomaton to visualize
-        title: Title for the visualization
-    """
+def visualize_automaton(automaton: NFH, title: str = "NFH"):
     G = nx.DiGraph()
     
     # Add nodes (states)
@@ -73,33 +66,16 @@ def visualize_automaton(automaton: HyperAutomaton, title: str = "Hyperautomaton"
     plt.show()
 
 
-def visualize_run(automaton: HyperAutomaton, traces: List[List[str]], 
+def visualize_run(automaton: NFH, traces: List[List[str]], 
                   result: Dict, save_path: str = None, interactive: bool = False):
-    """
-    Visualize the run of a hyperautomaton on traces.
-    
-    Args:
-        automaton: The hyperautomaton that was run
-        traces: List of traces that were processed
-        result: Result dictionary from simulate_runs
-        save_path: Optional path to save the visualization
-        interactive: If True, show step-by-step interactive visualization with buttons
-    """
     if interactive:
-        if isinstance(automaton, SynchronousHyperAutomaton):
-            _visualize_synchronous_run_interactive(automaton, traces, result)
-        else:
-            _visualize_asynchronous_run_interactive(automaton, traces, result)
+        _visualize_run_interactive(automaton, traces, result)
     else:
-        if isinstance(automaton, SynchronousHyperAutomaton):
-            _visualize_synchronous_run(automaton, traces, result, save_path)
-        else:
-            _visualize_asynchronous_run(automaton, traces, result, save_path)
+        _visualize_run_static(automaton, traces, result, save_path)
 
 
-def _visualize_synchronous_run(automaton: HyperAutomaton, traces: List[List[str]],
+def _visualize_run_static(automaton: NFH, traces: List[List[str]],
                                result: Dict, save_path: str = None):
-    """Visualize synchronous hyperautomaton run - all traces in same state."""
     run_history = result['run_history']
     
     if not run_history:
@@ -215,114 +191,10 @@ def _visualize_synchronous_run(automaton: HyperAutomaton, traces: List[List[str]
         plt.show()
 
 
-def _visualize_asynchronous_run(automaton: HyperAutomaton, traces: List[List[str]],
-                                result: Dict, save_path: str = None):
-    """Visualize asynchronous hyperautomaton run."""
-    run_history = result['run_history']
-    
-    num_traces = len(traces)
-    fig, axes = plt.subplots(num_traces + 1, 1, figsize=(14, 4 * (num_traces + 1)))
-    
-    if num_traces == 0:
-        axes = [axes]
-    
-    # Plot each trace's progression
-    for idx, trace_result in enumerate(run_history):
-        ax = axes[idx] if num_traces > 1 else axes[0]
-        
-        steps = [step['step'] for step in trace_result['steps']]
-        states = [step['current_state'] for step in trace_result['steps']]
-        
-        # Add final state
-        if trace_result['steps']:
-            steps.append(len(steps))
-            states.append(trace_result['final_state'])
-        
-        # Create state mapping
-        all_states = sorted(automaton.states)
-        state_to_y = {state: i for i, state in enumerate(all_states)}
-        y_positions = [state_to_y.get(state, 0) for state in states]
-        
-        color = 'green' if trace_result['accepted'] else 'red'
-        ax.plot(steps, y_positions, marker='o', linewidth=2, 
-               markersize=8, color=color, label=f"Trace {trace_result['trace_idx']+1}")
-        
-        ax.set_xlabel('Step', fontsize=12)
-        ax.set_ylabel('State', fontsize=12)
-        ax.set_title(f"Trace {trace_result['trace_idx']+1}: {'ACCEPTED' if trace_result['accepted'] else 'REJECTED'} - {trace_result['trace']}", 
-                    fontsize=12, fontweight='bold')
-        ax.set_yticks(range(len(all_states)))
-        ax.set_yticklabels(all_states)
-        ax.grid(True, alpha=0.3)
-        ax.legend()
-    
-    # Last subplot: automaton structure
-    ax_final = axes[-1] if num_traces > 1 else axes[0] if num_traces == 0 else axes[-1]
-    
-    G = nx.DiGraph()
-    for state in automaton.states:
-        node_color = 'lightgreen' if state in automaton.accepting_states else 'lightblue'
-        if state == automaton.initial_state:
-            node_color = 'lightyellow'
-        G.add_node(state, color=node_color)
-    
-    edge_labels = {}
-    for (state, symbol), next_states in automaton.transitions.items():
-        for next_state in next_states:
-            if G.has_edge(state, next_state):
-                edge_labels[(state, next_state)] += f", {symbol}"
-            else:
-                G.add_edge(state, next_state)
-                edge_labels[(state, next_state)] = symbol
-    
-    pos = nx.spring_layout(G, k=2, iterations=50)
-    
-    # Highlight edges used in any trace
-    edge_colors = []
-    edge_widths = []
-    for edge in G.edges():
-        used = False
-        for trace_result in run_history:
-            for step in trace_result['steps']:
-                if 'current_state' in step and 'new_state' in step:
-                    if edge == (step['current_state'], step['new_state']):
-                        used = True
-                        break
-            if used:
-                break
-        
-        if used:
-            edge_colors.append('red')
-            edge_widths.append(3)
-        else:
-            edge_colors.append('gray')
-            edge_widths.append(1)
-    
-    node_colors = [G.nodes[node].get('color', 'lightgray') for node in G.nodes()]
-    nx.draw_networkx_nodes(G, pos, node_color=node_colors, 
-                          node_size=2000, alpha=0.9, ax=ax_final)
-    nx.draw_networkx_edges(G, pos, edge_color=edge_colors, 
-                          width=edge_widths, arrows=True, 
-                          arrowsize=20, alpha=0.6, ax=ax_final)
-    nx.draw_networkx_labels(G, pos, font_size=10, font_weight='bold', ax=ax_final)
-    nx.draw_networkx_edge_labels(G, pos, edge_labels, font_size=8, ax=ax_final)
-    
-    ax_final.set_title('Automaton Structure (Red edges = used in run)', 
-                      fontsize=14, fontweight='bold')
-    ax_final.axis('off')
-    
-    plt.tight_layout()
-    
-    if save_path:
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        print(f"Visualization saved to {save_path}")
-    else:
-        plt.show()
 
 
-def _visualize_synchronous_run_interactive(automaton: HyperAutomaton, traces: List[List[str]],
-                                          result: Dict):
-    """Interactive step-by-step visualization for synchronous hyperautomaton."""
+def _visualize_run_interactive(automaton: NFH, traces: List[List[str]],
+                                          result: Dict):        
     run_history = result['run_history']
     
     if not run_history:
@@ -394,7 +266,6 @@ def _visualize_synchronous_run_interactive(automaton: HyperAutomaton, traces: Li
     state_to_y = {state: i for i, state in enumerate(all_states)}
     
     def update_visualization():
-        """Update the visualization based on current_step."""
         ax1.clear()
         ax2.clear()
         
@@ -514,186 +385,5 @@ def _visualize_synchronous_run_interactive(automaton: HyperAutomaton, traces: Li
     plt.show()
 
 
-def _visualize_asynchronous_run_interactive(automaton: HyperAutomaton, traces: List[List[str]],
-                                           result: Dict):
-    """Interactive step-by-step visualization for asynchronous hyperautomaton."""
-    run_history = result['run_history']
-    
-    if not run_history:
-        print("No run history to visualize.")
-        return
-    
-    num_traces = len(traces)
-    
-    # Prepare data for each trace
-    traces_data = []
-    for trace_result in run_history:
-        trace_steps = []
-        trace_states = []
-        for step in trace_result['steps']:
-            trace_steps.append(step['step'])
-            trace_states.append(step['current_state'])
-        if trace_result['steps']:
-            trace_steps.append(len(trace_steps))
-            trace_states.append(trace_result['final_state'])
-        traces_data.append({
-            'steps': trace_steps,
-            'states': trace_states,
-            'trace_idx': trace_result['trace_idx'],
-            'accepted': trace_result['accepted'],
-            'trace': trace_result['trace']
-        })
-    
-    # Create figure
-    fig = plt.figure(figsize=(16, 4 * (num_traces + 1) + 1))
-    
-    # Create axes
-    axes = []
-    for i in range(num_traces + 1):
-        axes.append(plt.subplot2grid((num_traces + 2, 1), (i, 0)))
-    
-    # Button area
-    ax_prev = plt.axes([0.1, 0.01, 0.1, 0.03])
-    ax_next = plt.axes([0.25, 0.01, 0.1, 0.03])
-    ax_reset = plt.axes([0.4, 0.01, 0.1, 0.03])
-    ax_info = plt.axes([0.55, 0.01, 0.4, 0.03])
-    ax_info.axis('off')
-    
-    # Current step tracker (global step across all traces)
-    current_step = [0]
-    max_steps = max(len(td['steps']) for td in traces_data) if traces_data else 0
-    
-    # Build automaton graph
-    G = nx.DiGraph()
-    for state in automaton.states:
-        node_color = 'lightgreen' if state in automaton.accepting_states else 'lightblue'
-        if state == automaton.initial_state:
-            node_color = 'lightyellow'
-        G.add_node(state, color=node_color)
-    
-    edge_labels = {}
-    for (state, symbol), next_states in automaton.transitions.items():
-        for next_state in next_states:
-            if G.has_edge(state, next_state):
-                edge_labels[(state, next_state)] += f", {symbol}"
-            else:
-                G.add_edge(state, next_state)
-                edge_labels[(state, next_state)] = symbol
-    
-    pos = nx.spring_layout(G, k=2, iterations=50)
-    all_states = sorted(automaton.states)
-    state_to_y = {state: i for i, state in enumerate(all_states)}
-    
-    def update_visualization():
-        """Update the visualization based on current_step."""
-        for ax in axes:
-            ax.clear()
-        
-        step_idx = current_step[0]
-        
-        # Plot each trace up to current step
-        for idx, trace_data in enumerate(traces_data):
-            ax = axes[idx]
-            steps = trace_data['steps']
-            states = trace_data['states']
-            
-            # Show steps up to current step (or trace's max step)
-            max_trace_step = min(step_idx, len(steps) - 1)
-            if max_trace_step >= 0:
-                steps_to_show = steps[:max_trace_step + 1]
-                states_to_show = states[:max_trace_step + 1]
-                
-                y_positions = [state_to_y.get(state, 0) for state in states_to_show]
-                color = 'green' if trace_data['accepted'] else 'red'
-                ax.plot(steps_to_show, y_positions, marker='o', linewidth=2, 
-                       markersize=8, color=color, label=f"Trace {trace_data['trace_idx']+1}")
-                
-                # Highlight current position
-                if max_trace_step < len(steps):
-                    ax.scatter([steps[max_trace_step]], 
-                             [state_to_y.get(states[max_trace_step], 0)], 
-                             s=200, color='orange', zorder=4, 
-                             edgecolors='black', linewidths=2)
-            
-            ax.set_xlabel('Step', fontsize=12)
-            ax.set_ylabel('State', fontsize=12)
-            status = 'ACCEPTED' if trace_data['accepted'] else 'REJECTED'
-            ax.set_title(f"Trace {trace_data['trace_idx']+1}: {status} - {trace_data['trace']}", 
-                        fontsize=12, fontweight='bold')
-            ax.set_yticks(range(len(all_states)))
-            ax.set_yticklabels(all_states)
-            if steps:
-                ax.set_xlim(-0.5, max(len(steps) - 1, 0) + 0.5)
-            ax.grid(True, alpha=0.3)
-            ax.legend()
-        
-        # Plot automaton structure
-        ax_final = axes[-1]
-        edge_colors = []
-        edge_widths = []
-        used_edges = set()
-        
-        # Mark edges used up to current step
-        for trace_result in run_history:
-            for i, step in enumerate(trace_result['steps']):
-                if i <= step_idx and 'current_state' in step and 'new_state' in step:
-                    edge = (step['current_state'], step['new_state'])
-                    used_edges.add(edge)
-        
-        for edge in G.edges():
-            used = edge in used_edges
-            if used:
-                edge_colors.append('red')
-                edge_widths.append(3)
-            else:
-                edge_colors.append('gray')
-                edge_widths.append(1)
-        
-        node_colors = [G.nodes[node].get('color', 'lightgray') for node in G.nodes()]
-        nx.draw_networkx_nodes(G, pos, node_color=node_colors, 
-                              node_size=2000, alpha=0.9, ax=ax_final)
-        nx.draw_networkx_edges(G, pos, edge_color=edge_colors, 
-                              width=edge_widths, arrows=True, 
-                              arrowsize=20, alpha=0.6, ax=ax_final)
-        nx.draw_networkx_labels(G, pos, font_size=10, font_weight='bold', ax=ax_final)
-        nx.draw_networkx_edge_labels(G, pos, edge_labels, font_size=8, ax=ax_final)
-        
-        ax_final.set_title('Automaton Structure', fontsize=14, fontweight='bold')
-        ax_final.axis('off')
-        
-        # Update info text
-        ax_info.text(0.05, 0.5, f"Step {step_idx}/{max_steps - 1}", 
-                    fontsize=11, verticalalignment='center', fontweight='bold')
-        
-        plt.draw()
-    
-    def on_prev(event):
-        if current_step[0] > 0:
-            current_step[0] -= 1
-            update_visualization()
-    
-    def on_next(event):
-        if current_step[0] < max_steps - 1:
-            current_step[0] += 1
-            update_visualization()
-    
-    def on_reset(event):
-        current_step[0] = 0
-        update_visualization()
-    
-    # Create buttons
-    btn_prev = Button(ax_prev, 'Previous')
-    btn_next = Button(ax_next, 'Next')
-    btn_reset = Button(ax_reset, 'Reset')
-    
-    btn_prev.on_clicked(on_prev)
-    btn_next.on_clicked(on_next)
-    btn_reset.on_clicked(on_reset)
-    
-    # Initial visualization
-    update_visualization()
-    
-    plt.tight_layout()
-    plt.subplots_adjust(bottom=0.05)
-    plt.show()
+
 
