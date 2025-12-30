@@ -17,20 +17,31 @@ hyper-automata-simulator/
 ├── hyperautomata/          # Core package
 │   ├── base.py             # NFH, Hyperword, and RunManager classes
 │   └── __init__.py
+├── visualizer/             # (WIP) Visualization module
+│   ├── __init__.py
+│   └── visualizer.py
 ├── simulator.py            # Membership checking logic (checkMembership relation between NFH and Hyperword)
+├── main.py                 # (WIP) Main entry point with parser
 ├── tests/                  # Unit tests
 │   ├── test_run_manager.py
 │   ├── test_simulator.py
 │   └── test_complex.py
 ├── run_tests.sh            # Script to run all tests
 └── requirements.txt        # Python dependencies
+└── Research/               # (External) Research papers and LaTeX sources
 ```
+
+*Note: The `Research` folder contains external reference materials and is irrelevant to the simulator project itself.*
 
 
 ## Installation
 
 1. Clone this repository.
-2. Install dependencies:
+3. Activate the virtual environment:
+   ```bash
+   source .venv/bin/activate
+   ```
+4. Install dependencies:
    ```bash
    pip3 install -r requirements.txt
    ```
@@ -80,7 +91,29 @@ The project uses `pytest` for testing. You can run the comprehensive test suite 
 
 Or manually:
 ```bash
-PYTHONPATH=. pytest tests
+ pytest tests
+```
+
+### Running Specific Tests
+
+To run a specific test file:
+```bash
+pytest tests/test_run_manager.py
+```
+
+To run a specific test class:
+```bash
+pytest tests/test_run_manager.py::TestRunManager
+```
+
+To run a specific test case:
+```bash
+pytest tests/test_run_manager.py::TestRunManager::test_run_manager_steps
+```
+
+To run with verbose output (showing each passing test):
+```bash
+pytest -v tests
 ```
 
 Tests cover:
