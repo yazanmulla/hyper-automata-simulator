@@ -1,0 +1,54 @@
+\section{Preliminaries}
+\label{sec:prelim}
+
+An {\em alphabet} is a nonempty finite set $\Sigma$ of {\em letters}. 
+%
+A {\em word} over $\Sigma$ is a finite 
+%or infinite 
+sequence of letters from 
+$\Sigma$. The {\em empty word} is denoted by $\epsilon$, and the set of all finite words is denoted by $\Sigma^*$. A {\em language} is a subset of $\Sigma^*$.
+
+
+\begin{definition}
+\label{def:nfa}
+A {\em nondeterministic finite-word automaton} (NFA) is a tuple \linebreak $A 
+= \tuple{\Sigma,Q,Q_0,\delta,F}$, where $\Sigma$ is an alphabet, $Q$ is a 
+nonempty finite set of {\em states}, $Q_0\subseteq Q$ is a set of {\em initial 
+states}, $F\subseteq Q$ is a set of {\em accepting states}, and 
+$\delta\subseteq Q\times\Sigma\times Q$ is a {\em transition relation}. 
+\end{definition}
+
+Given a word $w=\sigma_1\sigma_2\cdots \sigma_n$ over $\Sigma$, a 
+{\em run of $A$ on $w$} is a sequence of states $(q_0,q_1,\ldots q_n)$, such 
+that $q_0\in Q_0$, and for every $0 < i \leq n$, it holds that 
+$(q_{i-1},\sigma_i, q_i)\in \delta$.
+%
+The run is {\em accepting} if $q_n\in F$. 
+We say that $A$ {\em accepts} $w$ if there exists an accepting run of $A$ on $w$. 
+%
+The {\em language} of $A$, denoted by $\lang{A}$, is the set of all finite words that $A$ accepts. 
+A language $\cal L$ is called {\em regular} if there exists an NFA such that $\lang{A} = \cal L$.
+
+An NFA $A$ is called {\em deterministic} (DFA), if for every $q\in Q$ and 
+$\sigma\in\Sigma$, there exists exactly one $q'$ for which $(q,\sigma,q')\in 
+\delta$, i.e., $\delta$ is a transition {\em function}.
+It is well-known that every NFA has an equivalent DFA.
+
+\stam{
+A {\em regular expression} over $\Sigma$ is defined inductively as follows. $\epsilon, \emptyset$, and $\sigma\in \Sigma$ are regular expressions. Let $r_1,r_2$ be regular expressions. Then $(r_1|r_2)$, $(r_1\cdot r_2)$, and $(r_1^*)$ are regular expressions. 
+The semantics of regular expressions assigns every regular expression $r$ a language $\lang{r}$, as follows. $\lang{\epsilon} = \{\epsilon\}$, $\lang{\emptyset} = \emptyset$, and $\lang{\sigma} = \{\sigma\}$. Additionally, $\lang{(r_1+r_2)}= \lang{r_1}\cup \lang{r_2}$, $\lang{(r_1\cdot r_2)} = \lang{r_1}\cdot \lang{r_2}$, and $\lang{(r_1^*)} = \lang{r_1}^*$. It is well-known that $\cal L$ is regular iff there exists a regular expression $r$ such that $\lang{r} = \cal L$. 
+}
+
+\stam{
+\begin{definition}
+ \label{def:nba}
+A {\em nondeterministic B{\"u}chi automaton} (NBA) is a tuple \linebreak $A 
+= \tuple{\Sigma,Q,Q_0,\delta,F}$, whose elements are defined as in 
+Definition~\ref{def:nfa}. However, the runs of $A$ are defined over infinite 
+words. An infinite word $w$ is accepted by $A$ if $A$ has an infinite run on $w$ 
+that visits a state in $F$ infinitely often.
+\end{definition}
+
+
+As before, the language $\lang{A}$ is the set of all infinite words accepted by 
+$A$. }

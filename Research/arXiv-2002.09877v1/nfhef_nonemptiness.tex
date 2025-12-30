@@ -1,0 +1,80 @@
+\begin{theorem}
+The nonemptiness problem for $\nfhef$ is EXPSPACE-complete w.r.t. $n,k$ and PSPACE-complete w.r.t. $|\hat A|$.
+\end{theorem}
+\begin{proof}
+The upper bound follows from Theorem~\ref{thm:nfhef.nonemptiness}. 
+For the lower bound, we show a reduction from an exponent version of the {\em tiling problem}~\cite{Boas97}, defined as follows.
+We are given a finite set $T$ of tiles, two relations $V \subseteq T \times T$ and $H \subseteq T \times T$,
+an initial tile $t_0$, a final tile $t_f$, and a bound $n>0$.
+We have to decide whether there is some $m>0$ and a tiling of a $2^n \times m$-grid such that
+(1) The tile $t_0$ is in the bottom left corner and the tile $t_f$ is in the top left corner,
+(2) A horizontal condition: every pair of horizontal neighbors is in $H$, and
+(3) A vertical condition: every pair of vertical neighbors is in $V$.
+Formally, we have to decide whether there exist $m\in \N$ and a function $f:\{0,\ldots,2^n-1\} \times \{0,\ldots,m-1\} \rightarrow T$
+such that
+(1) $f(0,0)=t_0$ and $f(0, m-1)=t_f$,
+(2) For every $0 \leq i \leq 2^n-2$ and $0 \leq j \leq m-1$, we have that $(f(i,j),f(i+1,j)) \in H$, and
+(3) For every $0 \leq i \leq 2^n-1$ and $0 \leq j \leq m-2$, we have that $(f(i,j),f(i,j+1)) \in V$.
+When $n$ is given in unary, the problem is known to be EXPSPACE-complete.
+
+Given an instance $C$ of the tiling problem, We construct an $\nfhef$ $\A$ that is nonempty iff $C$ has a solution. 
+We encode a solution to $C$ as a word $w_{sol} =w_1\cdot w_2\cdot w_m\$$ over $T$, where $w_i$, of the form $t_{1,i}t_{2,i},\ldots t_{2^n,i}$, describes the contents of row $i$. 
+
+To make sure that $w_{sol}$ is indeed a solution, we need to make sure that:
+\begin{enumerate}
+\item $w_1$ begins with $t_0$ and $w_m$ ends with $t_f\$$,
+\item Within every $w_i$, it holds that $(t_{j,i},t_{j+1,i})\in H$,
+    \item Every row is of length $2^m$,
+    \item For $w_i,w_{i+1}$, it holds that $(t_{j,i}, t_{j,i+1})\in V$ for every $1\leq j\leq 2^n$
+\end{enumerate} 
+
+Verifying items $(1-2)$ is easy via an NFA.  
+The main obstacles are items $(3-4)$. 
+
+To make sure that the rows are of length $2^n$, we encode the horizontal positions using $n$ bits. The bits are described by a set of letters $B = \{b_{1,0}, b_{1,1},\ldots b_{n,0},b_{n,1}\}$, where $b_{k,v}$ means that the value of the $k$'th bit is $v$. 
+
+We extend the representation of a solution $w_sol$ to $n$ different words $w_{sol,1},\ldots w_{sol, n}$, where the $w_{sol,k}$ denotes the word obtained from $w_{sol}$ by adding, before each letter $t_{j,i}$, the letter $b_{k,v}$, where $v$ is the value of the $k$'th bit in the encoding of $j$. 
+
+Thus, a solution to $C$ is now $W = \zip(w_{sol,1},\ldots w_{sol,n})$.
+For example, for $k=3$, the first two letters of $W$ are of the form $$(b_{1,0},b_{2,0},b_{3,0}),(t_{1,1}, t_{1,1},t_{1,1}),(b_{1,0},b_{2,0},b_{3,1}),(t_{2,1},t_{2,1},t_{2,1})$$.
+
+We describe an $\nfhef$ $\A_1 = \tuple{T\cup B, \{x_1,\ldots x_{2n}\}, Q, \{q_0\},\delta, F, \alpha}$ that is nonempty iff there exists a word that satisfies items $(1-3)$.
+The quantification condition $\alpha$ is $\exists x_1\ldots \exists x_n \forall y_1 \ldots \forall y_n$.
+
+$\A_1$ only proceeds on letters in $B^{2n}$ (bit letters) or of the form $t^{2n}$ (or $(t_f\&)^{2n})$, for $t\in T$ (tile letters). 
+Further, it makes sure of the following.
+\begin{enumerate}
+    \item $W$ alternates between bit letters and tile letters. 
+    \item The first $n$ positions of the first letter are of the form $b_{1,v},b_{2,v},\ldots b_{n,v}$.
+    \item For every $W[i]$, there only appear bits from the same position. That is, $W[i]$ does not contain both $b_{j,v}, b_{j',v'}$ for $j\neq j'$.
+    \item The conditions for $t_0, t_f$, and $H$ are all met.
+\end{enumerate}
+
+All these conditions can be checked separately for either each letter or each word $W[i]$. 
+
+Correct enumeration is checked as follows. 
+There exists some $k$ for which $W[n+1]$ contains only $B$ letters for position $k$. 
+Depending on the value of $k$, the states in $\A$ make sure that the bit values conform to the $k$'th bit in a counter. For example, if $n=4$, then for $k=4$ the sequence of values should be $(0,1,0,1,\ldots)$, and for $k=3$ the sequence should be $(0,0,1,1,0,0,1,1,\ldots)$.
+
+It suffices to check every bit separately, since the $\forall$ requirement is that every representation of a word $W$ should be accepted, and so every position $k$ should appear in $W[n+1]$ in some representation of $W$. Therefore, $W$ can be accepted iff every bit conforms to its behaviour in a $2^n$ counter. 
+
+We proceed to describe how to extend $\A_1$ to handle the requirement for $V$. 
+We need to make sure that for every position $j$ in a row, the tile in position $j$ in the next row matches the current one. Since he number of positions is exponential in $n$, we cannot use the states to remember $j$.
+Instead, we add words that determine the position $j$ that is to be remembered. 
+We add to the alphabet a set of new bit letters $C = \{c_{1,0},c_{1,1},c_{2,0},c_{2,1},\ldots c_{n,0}, c_{n,1}\}$. 
+Intuitively, words over $C$ will contain exactly one bit letter $c_{i,v}$ each. A set of $n$ such words, one for each $1\leq i\leq n$, determines the position that is to be checked. 
+The extended $\nfhef$ $\A$ requires the existence of these $2n$ constant words under $\exists$ quantifiers, and for words in $\hat\A$ that contain $n$ appropriate words under the $\forall$ quantifiers, $\A$ requires that in every two consecutive positions that conform to the position encoded by these words, the two matching tiles are in $V$. 
+
+Accordingly, $\alpha$ is extended to $\exists x_1\ldots \exists x_n \exists v_1 \ldots \exists v_{2n} \forall y_1\ldots \forall y_n \forall v_1\ldots \forall v_n$, and $\hat\A$ reads letters of the type $t^{5n}$ or of the type $B^n\cdot C^{2n} \cdot (B\cup C)^{2n}$. 
+The following requirements are added to the requirements listed above for $\A_1$:
+\begin{enumerate}
+    \item positions $n+1$ to $3n$ are  $c_{1,0},\ldots c_{n,0}, c_{1,1},\ldots c_{n,1}$.
+    \item If a word $W[i]$ starts with some $c_{i,v}$, then $c_{i,v}$ occurs in all odd positions in $W[i]$ (recall that the even positions are tiles). 
+    \item Every word in which positions $3n+1$ to $4n$ does not start with a letter in $B$, or positions $4n+1$ to $5n$ does not start with a letter in $C$, such that every $1\leq i \leq n$ is represented in $C$, is accepted. 
+\end{enumerate}
+
+Now, consider a word in which positions $3n+1$ to $4n$ start with letters in $B$ representing every position $1$ to $n$, and positions $4n+1$ to $5n$ start with letters in $C$, also representing every such position. 
+The $C$ values determine the position within the rows that should be checked. Whenever the $C$ values match the $B$ values, $\A$ uses the states to remember the tile $t$ in the next letter, and the next time that the $C$ and $B$ values are matched, it checks that the following tile $t'$ satisfies $(t,t')\in V$ (and remembers $t'$ for the next check).
+Since every sequence must be accepted, we have that for a hyperword to be accepted, every row position must be tested in some assignment, and so the solution must also satisfy $V$.
+
+\end{proof}

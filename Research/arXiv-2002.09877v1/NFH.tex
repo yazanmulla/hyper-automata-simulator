@@ -1,0 +1,139 @@
+\subsection{Nondeterminsitic Finite-Word Hyperautomata}
+\label{sec:haf}
+
+%Here, we consider hyperwords consisting of words over an alphabet $\Sigma$.
+We begin with some terms and notations. 
+
+Let $s = (w_1,w_2,\ldots, w_k)$ be a tuple of finite words over  $\Sigma$. We 
+denote the length of the longest word in $s$ by $\ceil{s}$. We represent $s$ by 
+a word over $(\Sigma\cup\{\#\})^k$ of length $\ceil{s}$, which is 
+formed by a function $\zip(s)$ that ``zips'' the words in $s$ together: the 
+$i$'th letter in $\zip(s)$ represents the $i$'th letters in $w_1, w_2, \ldots, 
+w_k$, 
+and $\#$ is used to pad the words that have ended. For example,
+%
+$$\zip(aab, bc, abdd) = (a, b, a)(a, c, b)(b, \#, d)(\#, \#, d).$$
+%
+Formally, we have $\zip(s) =  \bi{s}_1\bi{s}_2\cdots \bi{s}_{\ceil{s}}$, 
+where
+$\bi{s}_i[j] = w_{j_i}$ if $j\leq|w|$, and $\bi{s}_i[j] = \#$, otherwise.
+%For example, for $s  = (aa, bab)$, we have $zip(s) = %(a,b)(a,a)(\#,b)$. I 
+%added my example and then noticed yours!
+
+Given a zipped word $\bi{s}$, we denote the word formed by the letters in the 
+$i$'th positions in $\bi{s}$ by $\bi{s}[i]$. 
+That is, $\bi{s}[i]$ is the word $\sigma_1\sigma_2\cdots \sigma_m$ formed by 
+defining $\sigma_j = \bi{s}_j[i]$, for $\bi{s}_j[i]\in \Sigma$.
+Notice that $\zip(s)$ is reversible, and we can define an $\unzip$ function 
+as $\unzip(\bi{s}) = (\bi{s}[1],\bi{s}[2],\dots, \bi{s}[k])$. We sometimes abuse the notation, and use $\unzip(\bi{s})$ to denote $\{\bi{s}[1],\bi{s}[2],\dots, \bi{s}[k]\}$, and $\zip(S)$ to denote the zipping of the words in a finite hyperword $S$ in some arbitrary order.
+
+\begin{definition}
+\label{def:nfh}
+A {\em nondeterministic finite-word hyperautomaton} (NFH) is a tuple \linebreak
+$\A = \tuple{\Sigma,X,Q,Q_0,F,\delta,\alpha}$, where $\Sigma$, $Q$, $Q_0$, and $F$ are as in Definition~\ref{def:nfa}, $X=\{x_1,\dots, x_k\}$ is a finite set of {\em word variables}, 
+$\delta\subseteq Q\times (\Sigma\cup \{\#\})^k \times Q$ is a transition 
+relation, and $\alpha  = \quant_1 x_1\quant_2x_2\ldots \quant_nx_k$ is a {\em 
+quantification condition}, where $\quant_i\in\{\forall,\exists\}$ for every 
+$1\leq i\leq k$.
+
+\end{definition}
+%
+In Definition~\ref{def:nfh}, the tuple $\tuple{(\Sigma\cup \{\#\})^k, Q, 
+Q_0, \delta, F}$ forms an underlying NFA of $\A$, which we denote by 
+$\hat{\A}$. We denote the alphabet of $\hat\A$ by $\hat{\Sigma}$. 
+
+Let $S$ be a hyperword and let $v: X\rightarrow S$ be an assignment of the word 
+variables of $\A$ to words in $S$. We denote by  $v[x\rightarrow w]$ the assignment obtained from $v$ by assigning the word $w\in S$ to $x\in X$. We represent $v$ by the word $\zip(v) = \zip(v(x_1),\ldots v(x_k))$.  
+%
+We now define the acceptance condition of a hyperword $S$ by an NFH $\A$. We 
+first define the satisfaction relation $\models$ for $S$, $\A$, a quantification condition $\alpha$, and an assignment $v:X\rightarrow S$, as follows.
+
+\begin{itemize}
+    \item For $\alpha = \epsilon$, we denote $S \models _v (\alpha,\A)$ if
+$\hat\A$ accepts $\zip(v)$. 
+
+\item For $\alpha = \exists x_i \alpha'$, we denote $S\models_v (\alpha,\A)$ if 
+there exists $w\in S$, such that $S \models_{v[x_i\rightarrow w]}  
+(\alpha',\A)$.
+
+\item For $\alpha = \forall x_i \alpha'$, we denote $S\models_v (\alpha,\A)$ 
+if for every $w\in S$, it holds that $S \models_{v[x_i\rightarrow w]}  
+(\alpha',\A)$.\footnote{In case that $\alpha$ begins with 
+$\forall$, satisfaction holds vacuously with an empty hyperword. We 
+restrict the discussion to nonempty hyperwords.}
+
+\end{itemize}
+%
+Since the quantification condition of $\A$ includes all of $X$, the satisfaction is independent of the 
+assignment $v$, and we denote $S \models \A$, in which case, we say that {\em $\A$ 
+accepts $S$}.
+
+ 
+
+\begin{definition}
+Let $\A$ be an NFH. The {\em hyperlanguage} of $\A$, denoted $\hlang{\A}$, is 
+the set of all hyperwords that $\A$ accepts.
+\end{definition}
+
+We call a hyperlanguage $\hl$ a {\em regular hyperlanguage} if there exists an NFH $\A$ such that $\hlang{\A} = \hl$.
+
+%\noindent{\bf Examples}
+
+
+
+\begin{example}
+Consider the NFH $\A_3$ in Figure~\ref{fig:ordered}, over the alphabet $\Sigma = 
+\{a,b\}$ and two word variables $x_1$ and $x_2$. From the initial state, two 
+words lead to the left component in $\hat{\A_3}$ iff in every position, if the 
+word assigned to $x_2$ has an $a$, the word assigned to $x_1$ has an $a$. In 
+the right component, the situation is dual -- in every position, if the word 
+assigned to $x_1$ has an $a$, the word assigned to $x_2$ has an $a$. 
+Since the quantification condition of $\A_3$ is $\forall x_1\forall x_2$, in a hyperword $S$ accepted by $\A_3$, in every two words in $S$, the set of $a$ positions of one is a subset of the $a$ positions of the other. Therefore, $\hlang{\A_3}$ includes all hyperwords in which there is a full ordering on the $a$ positions. 
+
+
+\begin{figure}[ht]
+%\hrulefill
+    \begin{center}
+        \includegraphics[scale=0.5]{figures/a_implies_a_2.pdf}
+    \end{center}
+    \caption{The NFH $\A_3$.}
+    \label{fig:ordered}
+%    \hrulefill
+\end{figure}
+\end{example}
+
+We consider several fragments of NFH, which limit the structure of the quantification condition $\alpha$.
+$\nfhf$ is the fragment in which $\alpha$ contains only $\forall$ quantifiers, 
+and similarly, in $\nfhe$, $\alpha$ contains only $\exists$ quantifiers. In 
+the fragment $\nfhef$, $\alpha$ is of the form $\exists x_1 \cdots \exists x_i \forall 
+x_{i+1}\cdots \forall x_k$.
+
+%and finally, in $\nfhfe$, $\alpha$ is of the form  
+%$\forall x_1 \cdots \forall x_i \exists x_{i+1}\cdots \exists x_k$.
+
+\subsection{Additional Terms and Notations}
+
+We present several more terms and notations which we use throughout the following sections.
+%
+We say that a word $\bi w$ over $(\Sigma\cup \#)^k$ is {\em legal} if 
+${\bi w}=\zip(u_1,\ldots u_k)$ for some $u_1,u_2,\ldots u_k \in \Sigma^*$. 
+Note that $\bi w$ is legal iff there is no ${\bi w}[i]$ in which there is an occurrence of $\#$ 
+followed by some letter $\sigma\in \Sigma$. 
+
+Consider two letter tuples $\sigma_1 = (t_1,\ldots t_k)$ and $\sigma_2 = (s_1,\ldots s_{k'})$. We denote by $\sigma_1+\sigma_2$ the tuple $(t_1,\ldots t_k, s_1,\ldots s_{k'})$.
+We extend the notion to zipped words. Let ${\bi w_1} = \zip(u_1,\ldots u_k)$ and ${\bi w_2} = \zip(v_1,\ldots v_{k'})$. We denote by ${\bi w_1} +{\bi w_2}$ the word $\zip(u_1,\ldots u_k,v_1,\ldots v_{k'})$.
+
+Consider a tuple $t = (t_1,t_2,\ldots t_k)$ of items. 
+A {\em sequence} of $t$ is a tuple $(t'_1, t'_2,\ldots t'_k)$, where 
+$t'_i\in\{t_1,\ldots t_k\}$ for every $1\leq i \leq k$. A {\em permutation} of $t$ is a reordering of the elements of $t$. 
+We extend these notions to zipped words, to 
+assignments, and to hyperwords, as follows. Let $\zeta = 
+(i_1,i_2,\ldots i_k)$ be a sequence (permutation) of $(1,2,\ldots, k)$.
+\begin{itemize}
+    \item Let ${\bi w} = \zip(w_1,\ldots w_k)$ be a word over $k$-tuples. The word ${\bi w}_\zeta$, 
+defined as $\zip(w_{i_1}, w_{i_2}, \ldots w_{i_k})$ is a sequence (permutation) of ${\bi w}$.
+    \item Let $v$ be an assignment from a set of variables $\{x_1,x_2,\ldots 
+x_k\}$ to a hyperword $S$. The assignment $v_\zeta$, defined as $v_\zeta(x_j) = 
+v(x_{i_j})$ for every $1\leq i,j \leq k$, is a sequence (permutation) of $v$. 
+\item Let $S$ be a hyperword. The tuple ${\bi w} = (w_1,\ldots w_k)$, where $w_i\in S$, is a sequence of $S$. if $\{w_1,\ldots w_k\} = S$, then $\bi w$ is a permutation of $S$. 
+\end{itemize}

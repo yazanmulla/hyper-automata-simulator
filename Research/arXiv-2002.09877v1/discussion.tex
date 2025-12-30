@@ -1,0 +1,31 @@
+\section{Conclusion and Future Work}
+\label{sec:concl}
+
+We have introduced and studied {\em hyperautomata} and {\em hyperlanguages}, 
+focusing on 
+the basic model of regular hyperlanguages, in which the underlying automaton is 
+a standard NFA. We have shown that regular hyperlanguages are closed under 
+set operations (complementation, intersection, and union) and are capable of 
+expressing important hyperproperties for information-flow security policies over 
+finite traces. We have also investigated fundamental decision procedures such as 
+checking nonemptiness and membership. We have shown that their regular 
+properties allow the learnability of the alternation-free fragments. Fragments 
+that combine the two types of quantifiers prove to be more challenging, and we 
+leave their learnability to future work.
+
+The notion of hyperlanguages, as well as the model of hyperautomata, can be 
+lifted to handle hyperwords that consist of {\em infinite} words: instead 
+of an underlying finite automaton, we can use any model that accepts infinite 
+words. In fact, we believe using an underlying alternating B{\"u}chi automaton, 
+such hyperautomata can express the entire logic of HyperLTL~\cite{cfkmrs14}, 
+using the standard Vardi-Wolper construction for LTL~\cite{VW94} as 
+basis. Our complexity results for the various decision procedures for NFH, 
+combined with the complexity results shown in~\cite{fh16}, suggest that using 
+hyperautomata would be optimal, complexity-wise, for handling HyperLTL.
+
+Further future directions include studying non-regular hyperlanguages 
+(e.g., context-free), and object hyperlanguages (e.g., trees). Other open 
+problems include a full investigation of the complexity of decision procedures 
+for alternating fragments of NFH. 
+
+

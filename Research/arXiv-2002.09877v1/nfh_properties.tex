@@ -1,0 +1,277 @@
+\section{Properties of Regular Hyperlanguages}
+\label{sec:nfh_properties}
+
+In this section, we consider the basic operations and decision 
+problems for the various fragments of NFH. We mostly provide proof sketches, and 
+the complete details appear in the appendix.
+%are in the full version. 
+Throughout this section, $\A$ is an NFH 
+$\tuple{\Sigma,X,Q,Q_0,\delta,F,\alpha}$, where $X = \{x_1,\ldots x_k\}$. 
+
+%For the various complexity results, notice that  the number of variables $k$ and the number of letters $\Sigma$ dictate an alphabet size of $O(|\Sigma|^k)$ for $\hat\A$. Thus, though the state space of $\hat\A$ is of size $n$, its size may be exponential in the number of variables due to its transition relation, which may be of size $n\times |\Sigma|^k\times n$. 
+
+We first show that NFH are closed under all the Boolean operations.
+
+\begin{theorem}\label{thm:nfh.operations}
+NFH are closed under union, intersection, and complementation.
+\end{theorem}
+
+\begin{proof}[Proof Sketch]
+Complementing $\A$ amounts to dualizing its quantification condition (replacing every $\exists$ with $\forall$ and vice versa), and complementing $\hat\A$ via the standard construction for NFA.
+
+Now, let $\A_1$ and $\A_2$ be two NFH.
+The NFH $\A_{\cap}$ for $\hlang{\A_1}\cap \hlang{\A_2}$ is based on the product construction of $\hat\A_1$ and $\hat\A_2$.
+The quantification condition of $\A_{\cap}$ is $\alpha_1 \cdot \alpha_2$. 
+The underlying automaton $\hat\A_{\cap}$ advances simultaneously on both $\A_1$ 
+and $\A_2$: when $\hat\A_1$ and $\hat\A_2$ run on zipped hyperwords ${\bi w_1}$ 
+and ${\bi w_2}$, respectively, 
+$\hat\A_{\cap}$ runs on ${\bi w_1}+{\bi w_2}$, and accepts only if both 
+$\hat\A_1$ and $\hat\A_2$ accept.
+
+Similarly, the NFH $\A_{\cup}$ for $\hlang{\A_1}\cup \hlang{\A_2}$ is based on the union construction of $\hat\A_1$ and $\hat\A_2$.
+The quantification condition of $\A_{\cup}$ is again $\alpha_1\cdot \alpha_2$. 
+The underlying automaton $\hat\A_{\cup}$ advances either on $\A_1$ or $\A_2$. For every word $\bi w$ read by $\hat\A_1$, the NFH $\hat\A_{\cup}$ reads ${\bi w}+{\bi w'}$, for every ${\bi w}'\in \hat\Sigma_2^*$, and dually, for every word $\bi w$ read by $\hat\A_2$, the NFH $\hat\A_{\cup}$ reads ${\bi w'}+{\bi w}$, for every ${\bi w}'\in \hat\Sigma_1^*$.
+\end{proof}
+
+\stam{
+\begin{theorem} 
+\label{thm:nfh.complement}
+
+NFH are closed under complementation.
+
+\end{theorem}
+
+
+\begin{theorem} \label{thm:nfh.union}
+NFH are closed under union.
+\end{theorem}
+
+\begin{theorem}\label{thm:nfh.intersection}
+
+
+NFH are closed under intersection.
+\end{theorem}
+}% of stam
+
+We now turn to study various decision problems for NFH. We begin with the 
+nonemptiness problem: given an NFH $\A$, is $\hlang{\A} = \emptyset$? We show 
+that while the problem is in general undecidable for NFH, it is decidable for 
+the fragments that we consider. 
+
+\begin{theorem}
+\label{thm:nfh.nonemptiness}
+The nonemptiness problem for NHF is undecidable.
+\end{theorem}
+
+The proof of Theorem~\ref{thm:nfh.nonemptiness} mimics the ideas in \cite{fh16}, 
+which uses a reduction from the {\em 
+Post correspondence problem (PCP)} to prove the undecidability of HyperLTL 
+satisfiability.
+
+For the alternation-free fragments, we can show that a simple reachability test on their underlying automata suffices to verify nonemptiness. Hence, we have the following.
+
+\begin{theorem} \label{thm:nfhe.nfhf.nonemptiness}
+The nonemptiness problem for $\nfhe$ and $\nfhf$ is \comp{NL-complete}.
+\end{theorem}
+
+The nonemptiness of $\nfhef$ is harder, and reachability does not suffice. 
+However, we show that the problem is decidable. 
+
+
+\stam{
+\begin{lemma}\label{lemma:nfhef.nonempty}
+Let $\A$ be an $\nfhef$ with a quantification condition $\alpha = \exists x_1,\ldots \exists x_m \forall 
+x_{m+1}\ldots \forall x_k$, where $1 \leq m < k$. 
+Then $\A$ is nonempty iff $\A$ accepts a hyperword of size at most $m$.
+\end{lemma}
+
+
+We now use Lemma~\ref{lemma:nfhef.nonempty} to describe a decision procedure for 
+the nonemptiness of $\nfhef$. 
+
+\begin{theorem}\label{thm:nfhef.nonemptiness}
+The nonemptiness problem for an $\nfhef$ $\A$ can be decided in space that is 
+polynomial in the size of $\hat\A$.
+\end{theorem}
+}
+
+\begin{theorem}
+\label{thm:nfhef.nonemptiness}
+The nonemptiness problem for $\nfhef$ is  \comp{PSPACE-complete}.
+\end{theorem}
+
+\begin{proof}[Proof Sketch]
+We can show that an $\nfhef$ $\A$ is nonempty iff it accepts a hyperword $S$ of size that is bounded by the number $m$ of $\exists$ quantifiers in $\alpha$.
+We can then construct an NFA $A$ whose language is nonempty iff it accepts 
+$\zip(S)$ for such a hyperword $S$. The size of $A$ is 
+$O(|\delta|)^{m^{k-m}})$. Unless $\A$ only accepts 
+hyperwords of size $1$, which can be easily checked, $|\delta|$ must be 
+exponential in the number $k-m$ of $\forall$ quantifiers, to account for all the 
+assignments to the variables under $\forall$, and so overall $|A|$ is of size 
+$O(|\A|^k)$. The problem can then be decided in \comp{PSPACE} by traversing 
+$A$ on-the-fly. We show that a similar result holds for the case that $k-m$ is 
+fixed.
+
+We use a reduction from the unary version of the tiling problem to prove \comp{PSPACE} lower bounds both for the general case and for the case of a fixed number of $\forall$ quantifiers. 
+\end{proof}
+
+We turn to study the membership problem for NFH: given an NFH $\A$ and a 
+hyperword $S$, is $S\in\hlang{\A}$? 
+When $S$ is finite, the set of possible assignments from $X$ to $S$ is finite, 
+and so the problem is decidable. We call this case the {\em finite membership 
+problem}. 
+
+\begin{theorem}\label{thm:nfh.membership.finite}
+\begin{itemize}
+\item The finite membership problem for NFH is in \comp{PSPACE}. 
+\item
+The finite membership problem for NFH with $O(\log(k))$ $\forall$ quantifiers is \comp{NP-complete}. 
+\end{itemize}
+\end{theorem}
+
+\begin{proof}[Proof Sketch]
+We can decide the membership of a hyperword $S$ in $\hlang{\A}$ by iterating over all relevant assignments from $X$ to $S$, and for every such assignment $v$, checking on-the-fly whether $\zip(v)$ is accepted by $\hat\A$. 
+This algorithm uses space of size that is polynomial in $k$ and logarithmic in $|\A|$ and in $|S|$. 
+
+When the number of $\forall$ quantifiers in $\A$ is 
+$|O(\log(k))|$, we can iterate over all assignments to the $\forall$ variables in polynomial time, while guessing assignments to the variables under $\exists$. Thus, membership in this case is in \comp{NP}.
+
+We use a reduction from the Hamiltonian cycle problem to prove \comp{NP-hardness} for this case. Given a graph $G=\tuple{\{v_1,\ldots v_n\}, E}$, we construct a hyperword $S$ with $n$ different words of length $n$ over $\{0,1\}$, each of which contains a single $1$. We also construct an $\nfhe$ $\A$ over $\{0,1\}$ with $n$ variables, a graph construction similar to that of $G$, and a single accepting and initial state $v_1$. From vertex $v_i$ there are transitions to all its neighbors, labeled by the letter $(0)^{i-1}+(1)+(0)^{n-i}$. Thus, $\A$ accepts $S$ iff there exists an assignment $f:X\rightarrow S$ such that  $\zip(f)\in\lang{\hat\A}$. Such an assignment $f$ describes a cycle in $G$, where $f(x_i)=w_j$ matches traversing $v_i$ in the $j$'th step. The words in $S$ ensure a single visit in every state, and their length ensures a cycle of length $n$.
+
+\noindent{\it Note:} for every hyperword of size at least $2$, the number of transitions in $\delta$ must be exponential in the number $k'$ of $\forall$ quantifiers, to account for all the different assignments to these variables. Thus, if $k = O(k')$, an algorithm that uses a space of size $k$ is in fact logarithmic in the size of $\A$. 
+\end{proof}
+
+
+
+\stam{
+
+\begin{theorem}\label{thm:nfh.membership.finite}
+Let $\A$ be an NFH and $S$ be a finite hyperword over $\Sigma$. Then it can be 
+decided whether $S\in \hlang{\A}$ in space that is polynomial in $k$, and 
+logarithmic in $|\hat\A|, |S|$.
+\end{theorem}
+
+\begin{proof}
+As discussed in the proof of Theorem~\ref{thm:nfhef.nonemptiness}, the size of 
+$\hat\Sigma$ must be exponential in the number of $\forall$ quantifiers in 
+$\alpha$, and therefore is exponential in $k$. We can decide the membership of 
+$S$ in $\hlang{\A}$ by iterating over all assignments of the type $X\rightarrow 
+S$. For every such assignment $v$, we construct $\zip(v)$ and run $\hat\A$ on 
+$\zip(v)$, on-the-fly. 
+\end{proof}
+
+The exponential size of $\hat\A$ is derived from the number of $\forall$ 
+quantifiers. When the number of $\forall$ quantifiers is fixed, then 
+$\hat\Sigma$ is not necessarily exponential in $k$. 
+
+\begin{theorem}
+\label{thrm:membershipA}
+The finite membership problem for NFH with a fixed number of $\forall$ 
+quantifiers is \comp{NP-complete}.
+\end{theorem}
+ 
+}
+
+When $S$ is infinite, it may still be finitely represented. 
+We now address the problem of deciding whether a regular language $\cal L$ 
+(given as an NFA) is accepted by an NFH. We call this {\em the regular 
+membership problem for NFH}. We show that this problem is decidable for the 
+entire class of NFH.
+
+
+\begin{theorem}
+\label{thrm:membershipFULL}
+The regular membership problem for NFH is decidable.
+\end{theorem}
+
+\begin{proof}[Proof Sketch]
+Let $A$ be an NFA, and let $\A$ be an NFH, both over $\Sigma$.
+We describe a recursive procedure for deciding 
+whether $\lang{A}\in\hlang{\A}$.
+
+For the base case of $k=1$, if $\alpha = \exists x_1$, then 
+$\lang{A}\in\hlang{\A}$ iff $\lang{A}\cap \lang{\hat{\A}} \neq \emptyset$.
+Otherwise, if $\alpha = \forall x_1$, then $\lang{A}\in\hlang{\A}$ iff 
+$\lang{A}\notin \hlang{\overline{\A}}$, where $\overline{\A}$ is the NFH for 
+$\overline{\hlang{\A}}$. 
+The quantification condition for $\overline{\A}$
+is $\exists x_1$, which conforms to the previous case.
+
+For $k>1$, we construct a sequence of NFH $\A_1, \A_2, \ldots, \A_k$. 
+If $\alpha$ starts with $\exists$, then we set $\A_1 = \A$. Otherwise, we set $\A_1 = \overline{\A}$.
+Given $\A_i$ with a quantification condition $\alpha_i$, we construct $\A_{i+1}$ as follows. 
+If $\alpha_i$ starts with $\exists$, then
+the set of variables of $\A_{i+1}$ is $\{x_{i+1},\ldots x_k\}$, and the 
+quantification condition $\alpha_{i+1}$ is $\quant_{i+1}x_{i+1}\cdots 
+\quant_kx_k$, where $\alpha_i = \quant_ix_i \quant_{i+1}\cdots \quant_kx_k$. 
+The NFH $\A_{i+1}$ is roughly constructed as the intersection between $A$ and $\hat\A_{i}$, based on the first position in every $(k-i)$-tuple letter in $\hat\Sigma_i$.
+Then, $\hat\A_{i+1}$ accepts a word $\zip(u_1,\ldots u_{k-i})$ iff there 
+exists a word $u\in \lang{A}$, such that $\hat\A_{i}$ accepts 
+$\zip(u,u_1,\ldots u_{k-i})$.
+Notice that this exactly conforms to the $\exists$ condition. 
+Therefore, if $\quant_{i} = \exists$, then $\lang{A}\in\hlang{\A_i}$ iff $\lang{A}\in\hlang{\A_{i+1}}$. 
+
+\stam{
+The set of states of $\A_{i+1}$ is $ Q_i\times P'$, and the set of initial states is $Q_i^0\times P_0$. The set of accepting states is ${\cal F}_i\times  F'$. For every 
+$(q\xrightarrow{\sigma_i,\ldots,\sigma_k}q')\in\delta_i$ and every 
+$(p\xrightarrow{\sigma_i}p')\in \rho$, we have 
+$((q,p)\xrightarrow{\sigma_{i+1},\ldots \sigma_k}(q',p'))\in\delta_{i+1}$. 
+
+Then, $\hat\A_{i+1}$ accepts a word $\zip(u_1,u_2,\ldots u_{k-i})$ iff there 
+exists a word $u\in \lang{A}$, such that $\hat\A_{i}$ accepts 
+$\zip(u,u_1,u_2,\ldots u_{k-i})$. 
+
+We first consider the case that $\quant_i = \exists$. 
+Let $v:\{x_{i},\ldots x_k\}\rightarrow \lang{A}$.
+Then $\lang{A}\models _v \alpha_i\A_i$ iff there exists $w\in \lang{A}$ such 
+that $\lang{A}\models_{v[x_i\rightarrow w]} \alpha_{i+1},A_i$.
+For an assignment $v':\{x_{i+1},\ldots x_k\}\rightarrow \lang{A}$, it holds 
+that 
+$\zip(v')$ is accepted by $\hat{A}_{i+1}$ iff there exists a word $w\in 
+\lang{A}$ such that $\zip(v)\in\lang{\hat{A}_i}$, where $v$ is obtained from 
+$v'$ 
+by setting $v(x_i) = w$. 
+
+Therefore, we have that $\lang{A}\models_{v[x_i\rightarrow 
+w]}\alpha_{i+1},\A_i$ 
+iff $\lang{A}\models_{v'} \alpha_{i+1}, \A_{i+1}$, that is, 
+$\lang{A}\in\hlang{\A_i}$ iff $\lang{A}\in\hlang{\A_{i+1}}$. 
+}
+
+If $\quant_i = \forall$, then  $\lang{A}\in \lang{\A_i}$ iff 
+$\lang{A}\notin \overline{\hlang{\A_i}}$. The 
+quantification condition of $\overline{\A_i}$ begins with $\exists x_i$. We then construct $\A_{i+1}$ w.r.t. $\overline{\A_i}$ as described above, and check for non-membership.
+
+Every $\forall$ quantifier requires complementation, which is exponential in 
+$|Q|$. Therefore, in the worst case, the complexity of this algorithm is 
+$O(2^{2^{...^{|Q||A|}}})$, where the tower is of height $k$. If the number of 
+$\forall$ quantifiers is fixed, then the complexity is $O(|Q||A|^k)$. 
+\end{proof}
+
+Since nonemptiness of NFH is undecidable, so are its universality and containment problems. However, we show that containment is decidable for the fragments that we consider.
+
+\begin{theorem}
+\label{thrm:containment}
+ The containment problems of $\nfhe$ and $\nfhf$ in $\nfhe$ and $\nfhf$ and of 
+$\nfhef$ in $\nfhe$ and $\nfhf$ are \comp{PSPACE-complete}.
+\end{theorem}
+
+\begin{proof}[Proof Sketch]
+The lower bound follows from the \comp{PSPACE-hardness} of the containment problem for NFA. 
+For the upper bound, for two NFH $\A_1$ and $\A_2$, we have that 
+$\hlang{\A_1}\subseteq\hlang{\A_2}$ iff 
+$\hlang{\A_1}\cap\overline{\hlang{\A_2}}  =  \emptyset$. 
+We can use the constructions in the proof of Theorem~\ref{thm:nfh.operations} 
+to compute a matching NFH $\A = 
+\A_1\cap\overline{\A_2}$, and check its nonemptiness. Complementing $\A_2$ is exponential in its number of states, and the intersection construction is polynomial. 
+
+If $\A_1\in\nfhe$ and $\A_2\in\nfhf$ or vice versa, then $\A$ is an $\nfhe$ or 
+$\nfhf$, respectively, whose nonemptiness can be decided in space that is 
+logarithmic in $|\A|$.   
+
+It follows from the construction in the proof of Theorem~\ref{thm:nfh.operations}, that the quantification condition of $\A$ may be any 
+interleaving of the quantification conditions of the two intersected NFH.
+Therefore, for the rest of the fragments, we can construct the intersection such that $\A$ is an $\nfhef$. 
+
+The PSPACE upper bound of Theorem~\ref{thm:nfhef.nonemptiness} is derived from the number of variables and not from the state-space of the NFH. Therefore, while $|\bar{\A_2}|$ is exponential in the number of states of $\A_2$, checking the nonemptiness of $\A$ is in \comp{PSPACE}. 
+\end{proof}

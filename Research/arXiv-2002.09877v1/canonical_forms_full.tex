@@ -1,0 +1,159 @@
+
+\subsection{Canonical Forms for Alternation-free Fragment}
+
+Throughout this section, we discuss NFH over an alphabet $\Sigma$ with a set of 
+variables $X = \{x_1,x_2,\ldots x_k\}$.
+
+\subsubsection{A Canonical Form for $\nfhf$}
+
+We begin with a canonical form for $\nfhf$. Let $\A$ be an $\nfhf$. 
+We say that an $\nfhf$ $\A'$ is {\em sequence complete} if for every word $w$, it holds that $\hat \A'$ accepts $w$ iff it accepts every sequence of $w$. 
+
+\begin{lemma}
+\label{lem:langeq}
+Let $\A'$ be a sequence complete $\nfhf$ over $\Sigma$ and $X$, such that 
+$\hat\A'$ accepts $w$ iff $\hat\A$ accepts every sequence of $w$. 
+Then $\lang{\A} =\lang{\A'}$.
+\end{lemma}
+
+
+\begin{lemma}
+\label{lem:eqseq}
+Every $\nfhf$ $\A$ has an equivalent sequence-complete $\nfhf$ $\A'$ over the 
+same set of variables. 
+\end{lemma}
+
+\begin{lemma}
+\label{lem:seqcomp}
+Let $\A_1$ and $\A_2$ be two sequence-complete $\nfhf$ over the same set of 
+variables $X$.
+Then $\lang{\A_1}=\lang{\A_2}$ iff  $\lang{\hat\A_1} = \lang{\hat \A_2}$.
+\end{lemma}
+
+Every NFA has an equivalent DFA, and DFAs have a canonical form, which is a 
+minimal DFA. We use this property to define a canonical form for $\nfhf$ as 
+minimal deterministic sequence-complete $\nfhf$ with a minimal number of 
+variables. 
+
+
+\subsubsection{A Canonical Form for $\nfhe$}
+
+We say that an $\nfhf$ $\A'$ is {\em permutation complete} if for every word 
+$w$, it holds that $\hat \A'$ accepts $w$ iff it accepts every permutation of 
+$w$. 
+
+\begin{lemma}
+\label{lem:premcomp}
+Let $\A$ be an $\nfhe$.
+Let $\A'$ be a permutation-complete $\nfhe$ over $\Sigma$ and $X$ with the following property: for every word $w$, the underlying NFA $\hat\A$ accepts a word $w$ iff $\hat\A'$ accepts all permutations of $w$. %Notice that this is the dual property of the one listed for $\nfhf$.
+Then $\lang{\A} =\lang{\A'}$.
+\end{lemma}
+
+\begin{lemma}
+\label{lem:eqpermcomp}
+Every $\nfhe$ has an equivalent permutation-complete $\nfhe$ over the same set 
+of variables. 
+\end{lemma}
+
+\begin{lemma}
+\label{lem:permcompsame}
+Let $\A_1$ and $\A_2$ be two permutation-complete $\nfhe$ over the same set of 
+variables $X$.
+Then $\lang{\A_1}=\lang{\A_2}$ iff  $\lang{\hat\A_1} = \lang{\hat \A_2}$.
+\end{lemma}
+
+We define a canonical form for $\nfhe$ as a minimal deterministic 
+permutation-complete $\nfhe$ with a minimal number of variables.
+
+
+
+
+\stam{
+
+\subsubsection{A canonical form for $\nfhef$}
+
+The canonical form for $\nfhef$ is a combination of the canonical forms for 
+$\nfhf$ and $\nfhe$.
+
+We denote an $\nfhef$ $\A$ with a quantification condition $\alpha = \exists 
+x_1\ldots \exists x_t\forall k_{t+1}\ldots \forall x_k$ as a $(k,t)-\nfhef$. 
+
+We say that a $(k,t)-\nfhef$ $\A$ is {\em permutation-sequence complete} if 
+$\A$ accepts a word $w$ iff $\A$ accepts every sequence $w'$ of $w$ in which 
+$(w'[1],\ldots w'[t])$ is a permutation of $(w[1],\ldots w[t])$. 
+
+\begin{lemma}\label{lem:nfhef1}
+Let $\A$ be a $(k,t)-\nfhef$. 
+Let $\A'$ be a $(k-t)-\nfhef$, with the following property.
+$w'\in\lang{\A'}$ iff $w'$ is a sequence of a word $w\in\lang{\hat\A}$ such that
+\begin{enumerate}
+\item
+$(w'[1],\ldots w'[t])$ is a permutation of $(w[1],\ldots w[t])$. 
+\item
+$w_\zeta\in\lang{\hat\A}$ for every sequence $\zeta$ such that $\zeta = (1,2,\ldots t,i_{t+1},\ldots i_k)$. That is, $\hat\A$ accepts all sequences of $w$ that agree with $w$ on its first $t$ words. 
+\end{enumerate}
+Then $\lang{\A} = \lang{A'}$.
+ \end{lemma}
+\begin{proof}
+For the first direction, let $S\in\lang{A}$. According to the semantics of the quantifiers, there exist $w_1,\ldots w_t\in S$, such that for every $w_{t+1},\ldots w_{k}$, it holds that $\hat\A$ accepts $\zip(w_1,\ldots w_k)$.
+Then, by the semantics of the $\forall$ quantifier, $\hat\A$ accepts all words of the form $\zip(w_1,w_2,\ldots w_t,w'_{t+1},\ldots w'_k)$, where $w'_{t+1},\ldots w'_k$ are taken from $\{w_1,\ldots w_k\}$. Then, by the conditions described above, we have that $\hat\A'$ accepts $\zip(w_1,\ldots w_k)$, and therefore $S\in\lang{A'}$.
+
+For the second direction, let $S\in\lang{A'}$. 
+Then there exist $w_1,\ldots w_t\in S$, such that for every $w_{t+1},\ldots w_{k}$, it holds that $\hat\A'$ accepts $w' = \zip(w_1,\ldots w_k)$.
+Then, by the conditions described above, $w'$ is a sequence of a word $w\in\lang{A}$ such that $\{w[1],\ldots w[t]\} = \{w'[1], \ldots w'[t]\} = \{w_1,\ldots w_t\}$ (though these words do not necessarily appear in the same order in $w,w'$), and such that $w[i] = w'[i]$ for every $t<i\leq k$. 
+Then, by the semantics of the quantifiers, we have that $S\in\lang{\A}$.
+\end{proof}
+
+Notice that the $\nfhef$ $\A'$ of Lemma~\ref{lem:nfhef1} is permutation-sequence complete.
+
+\begin{lemma}
+Every $(k,t)-\nfhef$ $\A$ has an equivalent permutation-sequence complete $(k,t)-\nfhef$ $\A'$.
+\end{lemma}
+\begin{proof}
+We construct $\A'$ in two steps. 
+First, we construct $\A''$ that is the intersection of every $\A_\zeta$ for a sequence $\zeta$ of the form $(1,2,\ldots t, i_{t+1},\ldots i_k)$, as for $\nfhf$ over the last $k-t$ indices, and then we construct $\A'$ as the union of $\A''_\xi$ for every permutation $\xi$ of the form $(i_1,\ldots i_t,t+1,\ldots k)$, as for $\nfhe$ over the first $t$ indices.
+\end{proof}
+
+\begin{lemma}
+Let $\A_1$ and $\A_2$ be two permutation-sequence complete $(k,t)-\nfhef$.
+Then $\lang{\A_1}=\lang{\A_2}$ iff  $\lang{\hat\A_1} = \lang{\hat \A_2}$.
+\end{lemma}
+\begin{proof}
+Suppose that $\lang{\A_1}=\lang{\A_2}$. Let $w\in\lang{\hat\A_1}$. 
+Since $\A_1$ is permutation-sequence complete, we have that $w_\zeta\in\lang{\A_1}$ for every sequence $\zeta$ of the form $(1,\ldots t,i_{t+1},\ldots i_k)$. By the semantics of the quantifiers, we have that $\unzip{w}\in\lang{A_1}$.
+Therefore, $\unzip{w}\in\lang{A_2}$, and so, according to the semantics of the quantifiers and the order of words in $w$, 
+there exists a word $w'\in\lang{\hat\A_2}$ such that $(w'[1],\ldots w'[t])$ is a permutation of $(w[1],\ldots w[t])$, and $(w'[t+1],\ldots w'[k])$ is a permutation of $(w[t+1],\ldots w[k])$. Since $\A_2$ is permutation-sequence complete, we have that $w\in\lang{\hat\A_2}$. A similar argument shows that $\lang{\hat\A_2}\subseteq \lang{\hat\A_1}$.
+The second direction is trivial.
+\end{proof}
+
+\begin{lemma}
+Let $\A$ be a $(k,t)-\nfhef$, such that $k$ is the minimal number of variables needed for expressing $\lang{\A}$.
+Then $\hat\A$ accepts a word $w$ in which $w[1],\ldots w[t]$ are all distinct. 
+\end{lemma}
+\begin{proof}
+Suppose by way of contradiction that for every $w\in\lang{\hat\A}$, two of the first $t$ words of in $w$ are equal. Due to the semantics of the $\exists$ quantifier, we can also 
+\end{proof}
+
+
+\begin{lemma}
+Let $\A_1$ and $\A_2$ be permutation-sequence complete $\nfhef$ for the same hyperlanguage $\cal L$, both with a minimal set of variables. Then the quantification conditions of $\A_1$ and $\A_2$ are equal.
+\end{lemma}
+\begin{proof}
+Suppose that $\A_1$ is a $(t,k)-\nfhef$, and $\A_2$ is a $(t,m)-\nfhef$.
+Suppose by way of contradiction, and without loss of generality, that $t < m$. 
+Let $S\in\lang{\A_1}$. 
+\end{proof}
+
+We define a canonical form for $\nfhef$ as a minimal deterministic permutation-sequence complete $\nfhef$ with a minimal number of variables. 
+
+
+}% of stam
+
+
+
+
+
+
+
+
+

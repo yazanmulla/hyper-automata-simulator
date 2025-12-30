@@ -1,0 +1,37 @@
+
+\begin{table}[t]
+\begin{center}
+\begin{tabular}{|c||c|c|}
+
+%\hline
+\multicolumn{1}{c}{\bf Property} & \multicolumn{2}{c}{\bf Result}\\
+\hline\hline
+Closure &  \multicolumn{2}{c|}{Complementation, Union, Intersection 
+(Theorem~\ref{thm:nfh.operations})} \\
+\hline
+
+\multirow{3}{*}{Nonemptiness}& $\forall\exists\exists$ & Undecidable 
+(Theorem~\ref{thm:nfh.nonemptiness})\\ 
+& $\exists^*/\forall^*$ & \comp{NL-complete} 
+(Theorem~\ref{thm:nfhe.nfhf.nonemptiness})\\ 
+& $\exists^*\forall^*$ & \comp{PSPACE-complete} 
+(Theorem~\ref{thm:nfhef.nonemptiness})\\
+\hline
+\multirow{2}{*}{Finite membership}& NFH & \comp{PSPACE} 
+(Theorem~\ref{thm:nfh.membership.finite})\\ 
+& $O(\log(k))$ ~$\forall$ & \comp{NP-complete} 
+(Theorem~\ref{thm:nfh.membership.finite})\\ 
+\hline
+Regular membership & \multicolumn{2}{c|}{Decidable 
+(Theorem~\ref{thrm:membershipFULL})} \\
+\hline
+Containment & $\exists^*/\forall^*/\exists^*\forall^*\subseteq \exists^*/\forall^*$ & \comp{PSPACE-complete} 
+(Theorem~\ref{thrm:containment})\\
+\hline
+
+ 
+\end{tabular} 
+\caption{Summary of results on properties of NHF.}
+\label{tab:results}
+\end{center}
+\end{table}

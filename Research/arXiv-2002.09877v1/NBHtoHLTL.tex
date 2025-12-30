@@ -1,0 +1,30 @@
+\section{HyperLTL to HyperABA}
+
+\todo{BB: I think we should clearly define HyperLTL and ABA if we want to keep 
+this section. I also think this construction appears in 
+https://www.react.uni-saarland.de/publications/FRS15.pdf.}\todo{Sarai: I agree about the definitions. About this construction, it's a little different since there the construction is directly for the purpose of model checking and has the system "built in", so there is no quantification of the automaton, it's a standard word automaton. But indeed the idea is similar. Perhaps we should minimize this section and mention that an extension to infinite words allows a direct translation of hyperltl to hyperautomata}
+
+Let $AP$ be a set of atomic propositions, and let $\g = \quant_1 x_1 \ldots \quant_k x_k \f$ be a hyper-LTL formula. 
+We construct a hyper-ABA $\A_\g$ over $(2^{AP})^k$ that accepts a hyperword $S$ iff $S\models\f$. Our construction is directly based on Vardi and Wolper's construction for LTL. 
+The set of states $S$ is $sub(\f)$, the set of sub-formulas of $\f$, the initial state is $\f$, the set of accepting states are all subformulas of the type $\neg \f_1\until\f_2$.
+To define the transition relation $\delta$, 
+we first define the {\em dual} formula $\overline{\alpha}$ for a formula $\alpha$, as follows. Let $\alpha_1,\alpha_2$ be formulas over $S$. 
+\begin{itemize}
+    \item $\overline{\true} = \false$ and $\overline{\false}=\true$.
+    \item $\overline{\alpha} = \neg\overline{\alpha}$, for $\alpha\in S$.
+    \item $\overline{\alpha_1\wedge\alpha_2} = \overline{\alpha_1}\vee\overline{\alpha_2}$.
+    \item $\overline{\alpha_1\vee \alpha_2} = \overline{\alpha_1}\wedge\overline{\alpha_2}$.
+    \item
+
+\end{itemize}
+
+The transition relation $\delta$ is as follows. 
+\begin{itemize}
+\item $\delta(a_{x_i},\sigma) = \true$ if $a\in\sigma[i]$, and $\false$ otherwise. 
+\item $\delta(\nextt \f_1, \sigma) =  \f_1$.
+\item $\delta(\f_1\vee \f_2,\sigma) = \delta(\f_1,\sigma)\vee \delta(\f_2,\sigma)$.
+\item $\delta(\neg \f_1) = \overline{\delta(\f_1)}$.
+\item $\delta(\f_1 \until \f_2, \sigma) = \delta(\f_2,\sigma)\vee (\delta(\f_1,\sigma) \wedge (\f_1\until\f_2))$. 
+\end{itemize}
+
+Finally, the quantification condition of $\A_\g$ is $\quant_1 x_1 \ldots \quant_k x_k$. 
