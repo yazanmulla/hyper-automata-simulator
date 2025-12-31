@@ -15,12 +15,10 @@ class TestRunManager(unittest.TestCase):
         # Transition: (q0, (a, b)) -> q0
         delta = {
             ('q0', ('a', 'b'), 'q0'),
-            ('q0', ('b', 'a'), 'q1'), # q1 is sink/reject implicitly if not accepting or no transitions
+            ('q0', ('b', 'a'), 'q1'), # q1 is sink/reject
         }
         
-        quantification = ['A', 'A']
-        
-        nfh = NFH(states, initial_states, accepting_states, k, delta, quantification, alphabet)
+        nfh = NFH(states, initial_states, accepting_states, k, delta, ['A', 'A'], alphabet)
         
         # Assignment: 1 -> 'a', 2 -> 'b'
         assignment = ['a', 'b']

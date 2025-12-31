@@ -24,8 +24,8 @@ hyper-automata-simulator/
 │   ├── base.py             # NFH and Hyperword classes
 │   ├── run_manager.py      # RunManager class
 │   ├── simulator.py        # Membership checking logic
-│   ├── main.py             # (WIP) Main entry point
 │   └── visualizer/         # (WIP) Visualization module
+├── main.py                 # (WIP) Main entry point
 ├── tests/                  # Unit tests
 │   ├── run_tests.sh        # Script to run all tests
 │   ├── test_run_manager.py
