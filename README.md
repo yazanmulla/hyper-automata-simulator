@@ -15,7 +15,6 @@ A simulator for Nondeterministic Finite-Word Hyperautomata (NFH) as defined in t
 ```
 hyper-automata-simulator/
 ├── env/                    # Environment configuration
-│   ├── pytest.ini
 │   ├── requirements.txt
 │   ├── setup.sh            # Setup script
 │   └── .venv/

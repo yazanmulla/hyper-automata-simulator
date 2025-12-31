@@ -158,7 +158,7 @@ class TestComplexScenarios(unittest.TestCase):
         Scenario: Graph encoded as words. 
         Edge (u,v) exists if NFH accepts (u,v).
         Property: Every node x has a self-loop (x,x).
-        $\forall x \in S, (x,x) \in R$.
+        Forall x in S, (x,x) in R.
         
         Relation R: "First letter matches". (u[0] == v[0]).
         S = {a, ab, b, ba}
@@ -189,24 +189,7 @@ class TestComplexScenarios(unittest.TestCase):
             ('q_ok', ('#', '#'), 'q_acc')
         }
         
-        alpha = ['A'] # For all x, is (x,x) accepted?
-        # Note: simulator `checkMembership(A, S)` usually assumes A has k quantifiers.
-        # Here we want to check property on PAIRS (x,x).
-        # This requires `checkMembership` to effectively run `check_models` BUT passing `(x,x)` to the automaton.
-        # But `checkMembership` explores $S^k$.
-        # If A has 2 variables ($k=2$), `checkMembership` for `A A` means $\forall x \forall y, R(x,y)$.
-        # We want $\forall x, R(x,x)$.
-        # This structure "For all x, R(x,x)" CANNOT be expressed directly by just `checkMembership` with NFH alpha=['A','A'] unless we constrain y=x inside the NFH?
-        # We can simulate this by defining an NFH with k=1 that internally duplicates the input? No.
-        # OR: We modify the test to just "For all x" where the automaton takes k=1?
-        # But relation R is on pairs.
-        # Complexity limitation: Standard First-Order Logic on Hyperwords with just Prefix Quantifiers cannot express "x=y" binding unless it's in the automaton logic.
-        # So we can define an NFH for k=1 that checks "Is x self-compatible?"
-        # R'(x) defined as "R(x,x)".
-        # Logic: Read (a) -> checks (a,a) implicitly?
-        # Let's simplfy: The test will use k=1. 
-        # The automaton accepts x if x starts with 'a'.
-        # Property: For all x in S, x starts with 'a'.
+        alpha = ['A']
         
         # Automaton: Starts with 'a'
         k=1
@@ -221,6 +204,67 @@ class TestComplexScenarios(unittest.TestCase):
         
         # S = {a, b}. b fails. -> False
         self.assertFalse(checkMembership(nfh_a, Hyperword({'a', 'b'})))
+
+    def test_single_maximum_length_word(self):
+        '''
+        Scenario: this NFH should accept hyperwords that have a single word of maximum length.
+        Examples: S = {a, ab, b, ba} -> False. S = {a, ab, b, ba, baa} -> True.
+
+        The property: There exists a word, x1, such that, for any word x2 in S:
+        if x1 != x2, then x1 is longer than x2.
+        '''
+        
+        states = {'q0', 'q_eq', 'q_read', 'q_acc'}
+        initial_states = {'q0'}
+        accepting_states = {'q_acc', 'q_eq'}
+        k = 2
+        alphabet = {'a', 'b'}
+        delta = {
+            ('q0', ('a', 'a'), 'q_eq'),
+            ('q0', ('b', 'b'), 'q_eq'),
+            ('q_eq', ('a', 'a'), 'q_eq'),
+            ('q_eq', ('b', 'b'), 'q_eq'),
+            # q_eq will only count as accepting if x1, x2 are the same word
+
+            ('q0', ('a', 'a'), 'q_read'),
+            ('q0', ('b', 'b'), 'q_read'),
+            ('q0', ('a', 'b'), 'q_read'),
+            ('q0', ('b', 'a'), 'q_read'),
+
+
+            ('q_read', ('a', 'a'), 'q_read'),
+            ('q_read', ('b', 'b'), 'q_read'),
+            ('q_read', ('a', 'b'), 'q_read'),
+            ('q_read', ('b', 'a'), 'q_read'),
+
+
+            ('q_read', ('a', '#'), 'q_acc'),
+            ('q_read', ('b', '#'), 'q_acc'),
+
+            ('q_acc', ('a', '#'), 'q_acc'),
+            ('q_acc', ('b', '#'), 'q_acc'),
+        }
+
+        alpha = ['E', 'A']
+        nfh = NFH(states, initial_states, accepting_states, k, delta, alpha, alphabet)
+
+        # S = {a, ab, b, ba} -> False
+        self.assertFalse(checkMembership(nfh, Hyperword({'a', 'ab', 'b', 'ba'})))
+
+        # S = {a, ab, b, ba, baa} -> True
+        self.assertTrue(checkMembership(nfh, Hyperword({'a', 'ab', 'b', 'ba', 'baa'})))
+        
+        # S = {a, ab, b, ba, baa, baaa} -> True
+        self.assertTrue(checkMembership(nfh, Hyperword({'a', 'ab', 'b', 'ba', 'baa', 'baaa'})))
+
+        words = {
+            s
+            for n in range(0, 11)
+            for i in range(2**n)
+            for s in [format(i, f"0{n}b").replace("0", "a").replace("1", "b")]
+        } | {"a" * 11}
+
+        self.assertTrue(checkMembership(nfh, Hyperword(words)))
 
 
 if __name__ == '__main__':
