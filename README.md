@@ -14,20 +14,23 @@ A simulator for Nondeterministic Finite-Word Hyperautomata (NFH) as defined in t
 
 ```
 hyper-automata-simulator/
-├── hyperautomata/          # Core package
-│   ├── base.py             # NFH, Hyperword, and RunManager classes
-│   └── __init__.py
-├── visualizer/             # (WIP) Visualization module
+├── env/                    # Environment configuration
+│   ├── pytest.ini
+│   ├── requirements.txt
+│   ├── setup.sh            # Setup script
+│   └── .venv/
+├── src/                    # Source code
 │   ├── __init__.py
-│   └── visualizer.py
-├── simulator.py            # Membership checking logic (checkMembership relation between NFH and Hyperword)
-├── main.py                 # (WIP) Main entry point with parser
+│   ├── base.py             # NFH and Hyperword classes
+│   ├── run_manager.py      # RunManager class
+│   ├── simulator.py        # Membership checking logic
+│   ├── main.py             # (WIP) Main entry point
+│   └── visualizer/         # (WIP) Visualization module
 ├── tests/                  # Unit tests
+│   ├── run_tests.sh        # Script to run all tests
 │   ├── test_run_manager.py
 │   ├── test_simulator.py
 │   └── test_complex.py
-├── run_tests.sh            # Script to run all tests
-└── requirements.txt        # Python dependencies
 └── Research/               # (External) Research papers and LaTeX sources
 ```
 
@@ -37,13 +40,13 @@ hyper-automata-simulator/
 ## Installation
 
 1. Clone this repository.
+2. Run the setup script to create environment and install dependencies:
+   ```bash
+   ./env/setup.sh
+   ```
 3. Activate the virtual environment:
    ```bash
-   source .venv/bin/activate
-   ```
-4. Install dependencies:
-   ```bash
-   pip3 install -r requirements.txt
+   source env/.venv/bin/activate
    ```
 
 ## Usage
@@ -53,8 +56,8 @@ hyper-automata-simulator/
 The core usage involves defining an `NFH` and checking if a `Hyperword` is a member of its language.
 
 ```python
-from hyperautomata.base import NFH, Hyperword
-from simulator import checkMembership
+from src.base import NFH, Hyperword
+from src.simulator import checkMembership
 
 # 1. Define NFH components
 states = {'q0', 'q1'}
@@ -86,12 +89,12 @@ print(f"Accepted: {result}")
 The project uses `pytest` for testing. You can run the comprehensive test suite using the provided script:
 
 ```bash
-./run_tests.sh
+./tests/run_tests.sh
 ```
 
 Or manually:
 ```bash
- pytest tests
+pytest tests
 ```
 
 ### Running Specific Tests
