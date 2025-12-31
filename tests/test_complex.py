@@ -1,6 +1,7 @@
 import unittest
-from hyperautomata.base import NFH, Hyperword, RunManager
-from simulator import checkMembership
+from src.base import NFH, Hyperword
+from src.run_manager import RunManager
+from src.simulator import checkMembership
 
 class TestComplexScenarios(unittest.TestCase):
 
@@ -185,8 +186,7 @@ class TestComplexScenarios(unittest.TestCase):
             ('q_ok', ('a', '#'), 'q_ok'), ('q_ok', ('#', 'a'), 'q_ok'),
             ('q_ok', ('b', '#'), 'q_ok'), ('q_ok', ('#', 'b'), 'q_ok'),
             
-            ('q_ok', ('#', '#'), 'q_acc'),
-            ('q_acc', ('#', '#'), 'q_acc')
+            ('q_ok', ('#', '#'), 'q_acc')
         }
         
         alpha = ['A'] # For all x, is (x,x) accepted?
@@ -212,8 +212,7 @@ class TestComplexScenarios(unittest.TestCase):
         k=1
         delta_k1 = {
              ('q0', ('a',), 'q_ok'),
-             ('q_ok', ('a',), 'q_ok'), ('q_ok', ('b',), 'q_ok'), ('q_ok', ('#',), 'q_acc'),
-             ('q_acc', ('#',), 'q_acc')
+             ('q_ok', ('a',), 'q_ok'), ('q_ok', ('b',), 'q_ok'), ('q_ok', ('#',), 'q_acc')
         }
         nfh_a = NFH(states, initial_states, accepting_states, k, delta_k1, ['A'], alphabet)
         

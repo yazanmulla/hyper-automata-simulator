@@ -1,6 +1,6 @@
 import unittest
-from hyperautomata.base import NFH, Hyperword
-from simulator import checkMembership
+from src.base import NFH, Hyperword
+from src.simulator import checkMembership
 
 class TestCheckMembership(unittest.TestCase):
     def test_exists_exists(self):

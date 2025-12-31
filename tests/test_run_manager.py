@@ -1,4 +1,5 @@
-from hyperautomata.base import NFH, RunManager
+from src.base import NFH
+from src.run_manager import RunManager
 from collections import deque
 import unittest
 
