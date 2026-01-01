@@ -263,8 +263,17 @@ class TestComplexScenarios(unittest.TestCase):
             for i in range(2**n)
             for s in [format(i, f"0{n}b").replace("0", "a").replace("1", "b")]
         } | {"a" * 11}
-
+        assert len(words) == 2047
         self.assertTrue(checkMembership(nfh, Hyperword(words)))
+
+        words = {
+            s
+            for n in range(0, 11)
+            for i in range(2**n)
+            for s in [format(i, f"0{n}b").replace("0", "a").replace("1", "b")]
+        }
+        assert len(words) == 2046
+        self.assertFalse(checkMembership(nfh, Hyperword(words)))
 
 
 if __name__ == '__main__':
