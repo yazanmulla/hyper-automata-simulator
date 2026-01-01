@@ -1,5 +1,6 @@
 from typing import Dict, Optional
 from collections import deque
+import time
 from .base import NFH
 
 class RunManager:
@@ -29,8 +30,10 @@ class RunManager:
     (WIP: think of a way to save history of all failed runs, if needed TODO: check with Sarai and Hadar)
     '''
 
-    def __init__(self, nfh: NFH, assignment, initial_state: Optional[str] = None):
+    def __init__(self, nfh: NFH, assignment, initial_state: Optional[str] = None, timeout: float = 60, enable_timeout: bool = True):
         self.nfh = nfh
+        self.timeout = timeout
+        self.enable_timeout = enable_timeout
         
         if initial_state is None:
             initial_state = list(nfh.initial_states)[0] # Just pick one for default behavior
@@ -94,28 +97,43 @@ class RunManager:
         for k, v in self.variables.items():
             new_variables[k] = deque(v)
             
-        newRun = RunManager(self.nfh, new_variables, self.current_state)
+        # Calculate remaining timeout for the branch
+        remaining_timeout = self.timeout
+        if self.enable_timeout:
+            elapsed = time.time() - self.start_time
+            remaining_timeout = self.timeout - elapsed
+
+        newRun = RunManager(self.nfh, new_variables, self.current_state, timeout=remaining_timeout, enable_timeout=self.enable_timeout)
         newRun.move(transition)
         return newRun
 
     def run(self) -> bool:
-        while True:
-            if self.acceptingState():
-                return True
+        self.start_time = time.time()
+        try:
+            while not self.enable_timeout or (time.time() - self.start_time <= self.timeout):
+                if self.acceptingState():
+                    return True
 
-            valid_transitions = self.valid_transitions()
-            
-            if len(valid_transitions) == 1: # Deterministic
-                self.move(valid_transitions[0])
-            elif len(valid_transitions) > 1: # Nondeterministic - Branching
-                for trans in valid_transitions:
-                    branch_run = self.branch(trans)
-                    if branch_run.run():
-                        self.run_history.extend(branch_run.run_history)
-                        return True # Successful run found
-                return False # No successful run found
-            else: # No possible transition
-                return False
+                valid_transitions = self.valid_transitions()
+                
+                if len(valid_transitions) == 1: # Deterministic
+                    self.move(valid_transitions[0])
+                elif len(valid_transitions) > 1: # Nondeterministic - Branching
+                    for trans in valid_transitions:
+                        # Check timeout before branching to fail fast
+                        if self.enable_timeout and (time.time() - self.start_time > self.timeout):
+                            return False
+
+                        branch_run = self.branch(trans)
+                        if branch_run.run():
+                            self.run_history.extend(branch_run.run_history)
+                            return True # Successful run found
+                    return False # No successful run found
+                else: # No possible transition
+                    return False
+            return False # Timeout
+        except RecursionError:
+            return False
 
     def print_run_history(self):
         print(f"Run History (Start: {self.run_history[0][0] if self.run_history else self.current_state}):")

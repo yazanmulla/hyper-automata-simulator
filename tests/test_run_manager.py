@@ -163,5 +163,37 @@ class TestRunManager(unittest.TestCase):
         self.assertFalse(manager.run())
         self.assertEqual(len(manager.run_history), 0)
 
+    def test_run_manager_infinite_loop(self):
+        # Test Timeout on infinite loop
+        # q0 --(#,#)--> q0 (infinite loop without consuming input)
+        
+        states = {'q0', 'q1'}
+        alphabet = {'a'}
+        initial_states = {'q0'}
+        accepting_states = {'q1'} # Unreachable
+        k = 2
+        
+        delta = {
+            ('q0', ('#', '#'), 'q0'),
+        }
+        
+        nfh = NFH(states, initial_states, accepting_states, k, delta, ['E', 'E'], alphabet)
+        assignment = ['a', 'b']
+        
+        # Set a short timeout
+        manager = RunManager(nfh, assignment, timeout=0.1)
+        
+        start_time = __import__('time').time()
+        result = manager.run()
+        end_time = __import__('time').time()
+        
+        self.assertFalse(result)
+        # Check that it ran for at least the timeout (approximately)
+        # It might be slightly more, but shouldn't be instant if it was truly looping.
+        # Actually, if it's instant, it means it didn't loop? no, it loops until timeout.
+        self.assertGreaterEqual(end_time - start_time, 0.1)
+        # And ensure it didn't run forever (e.g. < 2 seconds)
+        self.assertLess(end_time - start_time, 2.0)
+
 if __name__ == '__main__':
     unittest.main()
