@@ -1,0 +1,103 @@
+{
+    "k": 5,
+    "alpha": [
+        "E",
+        "E",
+        "E",
+        "E",
+        "E"
+    ],
+    "states": [
+        "q_shuffle",
+        "q_acc"
+    ],
+    "initial": [
+        "q_shuffle"
+    ],
+    "accepting": [
+        "q_acc"
+    ],
+    "alphabet": [
+        "a",
+        "b"
+    ],
+    "delta": [
+        [
+            "q_shuffle",
+            [
+                "a",
+                "#",
+                "a",
+                "#",
+                "a"
+            ],
+            "q_shuffle"
+        ],
+        [
+            "q_shuffle",
+            [
+                "b",
+                "#",
+                "b",
+                "#",
+                "b"
+            ],
+            "q_shuffle"
+        ],
+        [
+            "q_shuffle",
+            [
+                "#",
+                "a",
+                "a",
+                "#",
+                "a"
+            ],
+            "q_shuffle"
+        ],
+        [
+            "q_shuffle",
+            [
+                "#",
+                "b",
+                "b",
+                "#",
+                "b"
+            ],
+            "q_shuffle"
+        ],
+        [
+            "q_shuffle",
+            [
+                "#",
+                "#",
+                "#",
+                "a",
+                "a"
+            ],
+            "q_shuffle"
+        ],
+        [
+            "q_shuffle",
+            [
+                "#",
+                "#",
+                "#",
+                "b",
+                "b"
+            ],
+            "q_shuffle"
+        ],
+        [
+            "q_shuffle",
+            [
+                "#",
+                "#",
+                "#",
+                "#",
+                "#"
+            ],
+            "q_acc"
+        ]
+    ]
+}

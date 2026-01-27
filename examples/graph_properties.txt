@@ -1,0 +1,41 @@
+# ==========================================
+# Example: Graph Property (Self-Loop)
+# Description: Checks if a graph (encoded as a set of words) has a self-loop on every node.
+# Property: "For all x in S, R(x, x) is true"
+#
+# Relation R(u, v) is defined here as: "u and v start with the same character".
+# So this checks: Does every word in S start with a character that matches itself?
+# (Which is trivially true for all non-empty words, but demonstrates ForAll logic).
+# 
+# States:
+# q0: Start state. Checks first char.
+# q_ok: First char matched. Consume rest.
+# q_acc: Both inputs finished (empty).
+# q_bad: Mismatch found (reject).
+# ==========================================
+k: 2
+alpha: A
+states: q0 q_ok q_bad q_acc
+initial: q0
+accepting: q_acc
+alphabet: a b
+delta:
+# q0: Check first char matches
+q0 a a q_ok
+q0 b b q_ok
+q0 a b q_bad
+q0 b a q_bad
+
+# q_ok: Consume remaining characters (padding or synchronous)
+q_ok a a q_ok
+q_ok b b q_ok
+q_ok a b q_ok
+q_ok b a q_ok
+q_ok a # q_ok
+q_ok # a q_ok
+q_ok b # q_ok
+q_ok # b q_ok
+
+# q_acc: Both Empty
+q_ok # # q_acc
+END

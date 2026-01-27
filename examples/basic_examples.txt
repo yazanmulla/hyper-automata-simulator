@@ -1,0 +1,56 @@
+
+# ==========================================
+# Example 1: Simple Substring Match (k=1)
+# Description: Accepts any word containing "ab".
+# Copy the block below the separator lines.
+# ==========================================
+k: 1
+alpha: E
+states: q0 q1 q2
+initial: q0
+accepting: q2
+alphabet: a b
+delta:
+q0 a q0
+q0 b q0
+q0 a q1
+q1 b q2
+q2 a q2
+q2 b q2
+END
+
+# ==========================================
+# Example 2: Equality Check (k=2)
+# Description: Accepts pairs (x, y) where x == y.
+# Tests "For All" quantifiers: "For all x, y: matching characters?"
+# (Note: Logic depends on how you interpret 'A A'. Usually we check relation R.)
+# ==========================================
+k: 2
+alpha: A A
+states: q0 q_acc
+initial: q0
+accepting: q_acc
+alphabet: a b
+delta:
+q0 a a q0
+q0 b b q0
+q0 # # q_acc
+q_acc # # q_acc
+END
+
+# ==========================================
+# Example 3: Ends with 'a' (k=1)
+# Description: Accepts words ending in 'a'.
+# ==========================================
+k: 1
+alpha: E
+states: q0 q1
+initial: q0
+accepting: q1
+alphabet: a b
+delta:
+q0 a q1
+q0 b q0
+q1 a q1
+q1 b q0
+END

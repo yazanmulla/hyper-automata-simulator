@@ -1,0 +1,48 @@
+# ==========================================
+# Example: Single Maximum Length Word
+# Description: Accepts a set of words S if there exists a unique "longest" word.
+# More precisely: There exists a word x1 in S such that for all x2 in S:
+# If x1 != x2, then length(x1) > length(x2).
+#
+# Logic:
+# Compare x1 and x2. 
+# q0 -> q_eq: Initial state, words look identical so far.
+# q0 -> q_read: Words differ (or just non-deterministically branched to "read mode").
+# q_eq: Continues as long as (x1,x2) match. If x1 continues and x2 ends -> x1 is longer.
+# q_read: Consumes x1 and x2. x1 must continue after x2 ends.
+#
+# Quantifiers: Exists x1, ForAll x2.
+# ==========================================
+k: 2
+alpha: E A
+states: q0 q_eq q_read q_acc
+initial: q0
+accepting: q_acc q_eq
+alphabet: a b
+delta:
+# Start: identical
+q0 a a q_eq
+q0 b b q_eq
+q_eq a a q_eq
+q_eq b b q_eq
+
+# Start: different (or branching interpretation)
+q0 a a q_read
+q0 b b q_read
+q0 a b q_read
+q0 b a q_read
+
+# Read mode: consume both
+q_read a a q_read
+q_read b b q_read
+q_read a b q_read
+q_read b a q_read
+
+# x2 finishes (#), x1 continues (a or b) -> x1 is longer
+q_read a # q_acc
+q_read b # q_acc
+
+# q_acc: x1 continues, x2 stays empty
+q_acc a # q_acc
+q_acc b # q_acc
+END

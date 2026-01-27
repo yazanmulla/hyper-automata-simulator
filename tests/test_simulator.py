@@ -27,12 +27,14 @@ class TestCheckMembership(unittest.TestCase):
         S = Hyperword({'a', 'b'})
         
         # Should be true: we can pick x='a', y='b'
-        self.assertTrue(checkMembership(nfh, S))
+        result, _ = checkMembership(nfh, S)
+        self.assertTrue(result)
         
         # Hyperword with only 'a'
         S_bad = Hyperword({'a'})
         # Cannot pick y='b'. Should be false.
-        self.assertFalse(checkMembership(nfh, S_bad))
+        result_bad, _ = checkMembership(nfh, S_bad)
+        self.assertFalse(result_bad)
 
     def test_forall_forall(self):
         # A: ForAll x, ForAll y. x=y
@@ -57,12 +59,14 @@ class TestCheckMembership(unittest.TestCase):
         nfh = NFH(states, initial_states, accepting_states, k, delta, alpha, alphabet)
         
         # S = {'a'} -> Pairs: (a,a). Accepted.
-        self.assertTrue(checkMembership(nfh, Hyperword({'a'})))
+        result, _ = checkMembership(nfh, Hyperword({'a'}))
+        self.assertTrue(result)
         
         # S = {'a', 'b'} -> Pairs: (a,a), (b,b), (a,b), (b,a).
         # (a,b) and (b,a) have no transitions -> Reject.
         # So ForAll should return False.
-        self.assertFalse(checkMembership(nfh, Hyperword({'a', 'b'})))
+        result, _ = checkMembership(nfh, Hyperword({'a', 'b'}))
+        self.assertFalse(result)
 
     def test_forall_exists(self):
         # "For every x, there exists y such that ..."
@@ -87,7 +91,8 @@ class TestCheckMembership(unittest.TestCase):
         nfh = NFH(states, initial_states, accepting_states, k, delta, alpha, alphabet)
         
         S = Hyperword({'a', 'b'})
-        self.assertTrue(checkMembership(nfh, S))
+        result, _ = checkMembership(nfh, S)
+        self.assertTrue(result)
         
         # If we remove 'a' from the RHS options?
         # Say we only accept (a,b) and (b,b).
@@ -97,7 +102,8 @@ class TestCheckMembership(unittest.TestCase):
         # Case: S={'a'}. Transitions: (a,b) -> Acc.
         # For x='a', we need y in S s.t. (a,y) accepts.
         # y can only be 'a'. (a,a) rejects. So False.
-        self.assertFalse(checkMembership(nfh, Hyperword({'a'})))
+        result, _ = checkMembership(nfh, Hyperword({'a'}))
+        self.assertFalse(result)
 
 
 
@@ -112,7 +118,8 @@ class TestCheckMembership(unittest.TestCase):
         alpha = ['E']
         nfh = NFH(states, initial_states, accepting_states, k, delta, alpha, alphabet)
         
-        self.assertFalse(checkMembership(nfh, Hyperword({'a'})))
+        result, _ = checkMembership(nfh, Hyperword({'a'}))
+        self.assertFalse(result)
 
     def test_empty_hyperword(self):
         # Test behavior on empty set
@@ -125,11 +132,13 @@ class TestCheckMembership(unittest.TestCase):
         
         # Exists over empty set -> False
         nfh_e = NFH(states, initial_states, accepting_states, k, delta, ['E'], alphabet)
-        self.assertFalse(checkMembership(nfh_e, Hyperword(set())))
+        result_e, _ = checkMembership(nfh_e, Hyperword(set()))
+        self.assertFalse(result_e)
         
         # ForAll over empty set -> True
         nfh_a = NFH(states, initial_states, accepting_states, k, delta, ['A'], alphabet)
-        self.assertTrue(checkMembership(nfh_a, Hyperword(set())))
+        result_a, _ = checkMembership(nfh_a, Hyperword(set()))
+        self.assertTrue(result_a)
 
     def test_alternation_AE_vs_EA(self):
         # Define a relation R(x,y).
@@ -158,7 +167,8 @@ class TestCheckMembership(unittest.TestCase):
         # So AE should be True.
         
         nfh_ae = NFH(states, initial_states, accepting_states, k, delta, ['A', 'E'], alphabet)
-        self.assertTrue(checkMembership(nfh_ae, Hyperword({'a', 'b'})))
+        result, _ = checkMembership(nfh_ae, Hyperword({'a', 'b'}))
+        self.assertTrue(result)
         
         # Case 2: Exists x, ForAll y.
         # Try x=a. For all y in {a,b}: (a,a) Acc, (a,b) Acc. OK.
@@ -185,10 +195,36 @@ class TestCheckMembership(unittest.TestCase):
             ('q0', ('b', 'a'), 'q1')
         }
         nfh_ae_2 = NFH(states, initial_states, accepting_states, k, delta_broken, ['A', 'E'], alphabet)
-        self.assertTrue(checkMembership(nfh_ae_2, Hyperword({'a', 'b'})))
+        result, _ = checkMembership(nfh_ae_2, Hyperword({'a', 'b'}))
+        self.assertTrue(result)
         
         nfh_ea_2 = NFH(states, initial_states, accepting_states, k, delta_broken, ['E', 'A'], alphabet)
-        self.assertFalse(checkMembership(nfh_ea_2, Hyperword({'a', 'b'})))
+        result_2, _ = checkMembership(nfh_ea_2, Hyperword({'a', 'b'}))
+        self.assertFalse(result_2)
+
+    def test_forall_returns_multiple_runs(self):
+        # A: ForAll x. x='a' or x='b'.
+        # S = {'a', 'b'}
+        # Should return 2 managers.
+        states = {'q0', 'q1'}
+        alphabet = {'a', 'b'}
+        initial_states = {'q0'}
+        accepting_states = {'q1'}
+        k = 1
+        delta = {
+             ('q0', ('a',), 'q1'),
+             ('q0', ('b',), 'q1')
+        }
+        alpha = ['A']
+        nfh = NFH(states, initial_states, accepting_states, k, delta, alpha, alphabet)
+        
+        result, managers = checkMembership(nfh, Hyperword({'a', 'b'}))
+        self.assertTrue(result)
+        self.assertEqual(len(managers), 2)
+        # Verify assignments
+        assignments = {tuple(mgr.initial_assignment) for mgr in managers}
+        self.assertIn(('a',), assignments)
+        self.assertIn(('b',), assignments)
 
 if __name__ == '__main__':
     unittest.main()

@@ -46,13 +46,16 @@ class TestComplexScenarios(unittest.TestCase):
         # Test 1: MATCH "bbababb" (contains aba in middle)
         # Nondeterminism: at index 2 ('a'), can stay q0 or go q1.
         # Path: q0(b)->q0(b)->q1(a)->q2(b)->q3(a)->q3(b)->q3(b) --> ACCEPT
-        self.assertTrue(checkMembership(nfh, Hyperword({'bbababb'})))
+        result, _ = checkMembership(nfh, Hyperword({'bbababb'}))
+        self.assertTrue(result)
         
         # Test 2: NO MATCH "aabbb" (no aba)
-        self.assertFalse(checkMembership(nfh, Hyperword({'aabbb'})))
+        result, _ = checkMembership(nfh, Hyperword({'aabbb'}))
+        self.assertFalse(result)
         
         # Test 3: Overlapping "ababa" (matches)
-        self.assertTrue(checkMembership(nfh, Hyperword({'ababa'})))
+        result, _ = checkMembership(nfh, Hyperword({'ababa'}))
+        self.assertTrue(result)
 
     def test_concatenation_k3(self):
         """
@@ -200,10 +203,12 @@ class TestComplexScenarios(unittest.TestCase):
         nfh_a = NFH(states, initial_states, accepting_states, k, delta_k1, ['A'], alphabet)
         
         # S = {a, ab}. All start with a. -> True
-        self.assertTrue(checkMembership(nfh_a, Hyperword({'a', 'ab'})))
+        result, _ = checkMembership(nfh_a, Hyperword({'a', 'ab'}))
+        self.assertTrue(result)
         
         # S = {a, b}. b fails. -> False
-        self.assertFalse(checkMembership(nfh_a, Hyperword({'a', 'b'})))
+        result, _ = checkMembership(nfh_a, Hyperword({'a', 'b'}))
+        self.assertFalse(result)
 
     def test_single_maximum_length_word(self):
         '''
@@ -249,13 +254,16 @@ class TestComplexScenarios(unittest.TestCase):
         nfh = NFH(states, initial_states, accepting_states, k, delta, alpha, alphabet)
 
         # S = {a, ab, b, ba} -> False
-        self.assertFalse(checkMembership(nfh, Hyperword({'a', 'ab', 'b', 'ba'})))
+        result, _ = checkMembership(nfh, Hyperword({'a', 'ab', 'b', 'ba'}))
+        self.assertFalse(result)
 
         # S = {a, ab, b, ba, baa} -> True
-        self.assertTrue(checkMembership(nfh, Hyperword({'a', 'ab', 'b', 'ba', 'baa'})))
+        result, _ = checkMembership(nfh, Hyperword({'a', 'ab', 'b', 'ba', 'baa'}))
+        self.assertTrue(result)
         
         # S = {a, ab, b, ba, baa, baaa} -> True
-        self.assertTrue(checkMembership(nfh, Hyperword({'a', 'ab', 'b', 'ba', 'baa', 'baaa'})))
+        result, _ = checkMembership(nfh, Hyperword({'a', 'ab', 'b', 'ba', 'baa', 'baaa'}))
+        self.assertTrue(result)
 
         words = {
             s
@@ -264,7 +272,8 @@ class TestComplexScenarios(unittest.TestCase):
             for s in [format(i, f"0{n}b").replace("0", "a").replace("1", "b")]
         } | {"a" * 11}
         assert len(words) == 2047
-        self.assertTrue(checkMembership(nfh, Hyperword(words)))
+        result, _ = checkMembership(nfh, Hyperword(words))
+        self.assertTrue(result)
 
         words = {
             s
@@ -273,7 +282,8 @@ class TestComplexScenarios(unittest.TestCase):
             for s in [format(i, f"0{n}b").replace("0", "a").replace("1", "b")]
         }
         assert len(words) == 2046
-        self.assertFalse(checkMembership(nfh, Hyperword(words)))
+        result, _ = checkMembership(nfh, Hyperword(words))
+        self.assertFalse(result)
 
 
 if __name__ == '__main__':
