@@ -54,6 +54,11 @@ class RunManager:
         state_key = (state, ptrs)
         if state_key in self.memo:
             return self.memo[state_key]
+            
+        if state_key in self.visiting:
+             return False
+
+        self.visiting.add(state_key)
 
         # Check Acceptance (Base Case)
         # Accepted if in accepting state AND all tapes consumed
@@ -65,6 +70,7 @@ class RunManager:
                     break
             if all_consumed:
                 self.memo[state_key] = True
+                self.visiting.remove(state_key)
                 return True
 
         # Recursion
@@ -93,9 +99,11 @@ class RunManager:
                 if self._solve(next_state, next_ptrs):
                     self.memo[state_key] = True
                     self.path_map[state_key] = transition
+                    self.visiting.remove(state_key)
                     return True
 
         self.memo[state_key] = False
+        self.visiting.remove(state_key)
         return False
 
     def reconstruct_path(self):
@@ -129,6 +137,7 @@ class RunManager:
     def run(self) -> bool:
         self.start_time = time.time()
         self.memo = {}
+        self.visiting = set()
         self.path_map = {}
 
         success = self._solve(self.initial_state, self.ptrs)

@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from src.base import NFH, Hyperword
 from src.run_manager import RunManager
 

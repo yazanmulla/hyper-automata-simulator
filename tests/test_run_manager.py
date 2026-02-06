@@ -188,10 +188,8 @@ class TestRunManager(unittest.TestCase):
         end_time = __import__('time').time()
         
         self.assertFalse(result)
-        # Check that it ran for at least the timeout (approximately)
-        # It might be slightly more, but shouldn't be instant if it was truly looping.
-        # Actually, if it's instant, it means it didn't loop? no, it loops until timeout.
-        self.assertGreaterEqual(end_time - start_time, 0.1)
+        # With cycle detection, it returns False immediately, no need to wait for timeout.
+        # self.assertGreaterEqual(end_time - start_time, 0.1) 
         # And ensure it didn't run forever (e.g. < 2 seconds)
         self.assertLess(end_time - start_time, 2.0)
 
