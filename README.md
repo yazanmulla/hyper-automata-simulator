@@ -18,13 +18,20 @@ hyper-automata-simulator/
 │   ├── requirements.txt
 │   ├── setup.sh            # Setup script
 │   └── .venv/
+├── examples/               # Example NFH and Hyperword definitions
+│   ├── complex_nfh.json
+│   ├── complex_input.json
+│   └── ...
 ├── src/                    # Source code
 │   ├── __init__.py
 │   ├── base.py             # NFH and Hyperword classes
+│   ├── parser.py           # Text-based NFH parser
 │   ├── run_manager.py      # RunManager class
 │   ├── simulator.py        # Membership checking logic
-│   └── visualizer/         # (WIP) Visualization module
-├── main.py                 # (WIP) Main entry point
+│   └── visualizer/         # Visualization module
+│       ├── visualizer.py
+│       └── states_visualizer.py
+├── main.py                 # Main entry point (CLI)
 ├── tests/                  # Unit tests
 │   ├── run_tests.sh        # Script to run all tests
 │   ├── test_run_manager.py
@@ -49,6 +56,31 @@ hyper-automata-simulator/
    ```
 
 ## Usage
+
+You can run the simulator interactively or by providing file paths via CLI arguments.
+
+### interactive Mode
+Simply run:
+```bash
+python main.py
+```
+Follow the prompts to define your NFH and Hyperword manually.
+
+### Loading from Files (CLI)
+You can define your NFH and Hyperword in JSON files and pass them as arguments:
+
+```bash
+python main.py -nfh <path_to_nfh_json> -hyperword <path_to_hyperword_json>
+```
+
+#### Examples
+The `examples/` directory contains sample configurations. Try running:
+
+```bash
+python main.py -nfh examples/complex_nfh.json -hyperword examples/complex_input.json
+```
+
+If the result is accepted, you will be prompted to visualize the run history.
 
 ### Programmatic Usage
 
@@ -79,7 +111,7 @@ nfh = NFH(states, initial_states, accepting_states, k, delta, quantifiers, alpha
 S = Hyperword({'a', 'b'})
 
 # 4. Check membership
-result = checkMembership(nfh, S)
+result, managers = checkMembership(nfh, S)
 print(f"Accepted: {result}")
 ```
 

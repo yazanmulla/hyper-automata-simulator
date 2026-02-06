@@ -36,10 +36,6 @@ def check_models(A: NFH, S: Hyperword, quantifiers: List[tuple], assignment: Dic
             new_assignment = assignment.copy()
             new_assignment[var_idx] = word
             # Debug/Progress Info for searches
-            if len(new_assignment) == A.k:
-                 # Print only every ~100 checks or if verbose needed, but for now print all to show activity
-                 # Using a simpler print that overwrites line might be better
-                 print(f"\rChecking assignment for {list(quantifiers[0])}: ... {len(new_assignment)}/{A.k} set", end='', flush=True)
             success, managers = check_models(A, S, remaining_quantifiers, new_assignment)
             if success:
                 return True, managers
